@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const BooksSchema = mongoose.schema({
-  userID: { type: String, required: true },
+  userID: { type: String, required: true, unique: true },
   title: { type: String, required: true },
   author: { type: String, required: true },
   imageUrl: { type: String, required: true },
@@ -9,7 +9,7 @@ const BooksSchema = mongoose.schema({
   genre: { type: String, required: true },
   ratings: [
     {
-      userID: { type: String },
+      userID: { type: String, unique: true },
       grade: { type: Number, }
     }
   ],

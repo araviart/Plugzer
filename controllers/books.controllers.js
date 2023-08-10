@@ -32,5 +32,5 @@ exports.bestRatings = async (req, res) => {
 };
 
 exports.modify = async (req, res) => {
-  
+
 };
