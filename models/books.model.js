@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const BooksSchema = mongoose.schema({
+const BooksSchema = mongoose.Schema({
   userID: { type: String, required: true, unique: true },
   title: { type: String, required: true },
   author: { type: String, required: true },

@@ -17,22 +17,28 @@ exports.signUp = async (req, res) => {
 };
 
 exports.logIn = async (req, res) => {
-  User.findOne({ email: req.body.email })
-    .then(user => {
-      if (!user) {
-        return res.status(401).json({ message: "email/password are incorrect" });
-      }
-      bcrypt.compare(req.body.password, user.password)
-        .then(valid => {
-          if (!valid) {
-            return res.status(401).json({ message: "email/password are incorrect" });
-          }
-          res.status(200).json({
-            userID: user._id,
-            token: "TOKEN"
-          });
-        })
-        .catch(error => res.status(500).json({ error }));
-    })
-    .catch(error => res.status(500).json({ error }));
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
+
+    res.status(200).json({
+      userID: user._id,
+      token: jwt.sign(
+        { userId: user._id },
+        process.env.TOKEN_SECRET,
+        { expiresIn: '24h' })
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
