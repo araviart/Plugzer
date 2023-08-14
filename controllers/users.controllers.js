@@ -1,11 +1,11 @@
-const User = require('../models/users.model');
+const Users = require('../models/users.model');
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 
 exports.signUp = async (req, res) => {
   bcrypt.hash(req.body.password, 10)
     .then(hash => {
-      const user = new User({
+      const user = new Users({
         email: req.body.email,
         password: hash
       });
@@ -18,7 +18,7 @@ exports.signUp = async (req, res) => {
 
 exports.logIn = async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await Users.findOne({ email: req.body.email });
 
     if (!user) {
       return res.status(401).json({ message: "User not found" });
@@ -31,9 +31,9 @@ exports.logIn = async (req, res) => {
     }
 
     res.status(200).json({
-      userID: user._id,
+      userID: user.id,
       token: jwt.sign(
-        { userId: user._id },
+        { userId: user.id },
         process.env.TOKEN_SECRET,
         { expiresIn: '24h' })
     });
