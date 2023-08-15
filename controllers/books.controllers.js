@@ -4,26 +4,32 @@ const Books = require("../models/books.model");
 // Create a book page
 exports.create = async (req, res) => {
   const userId = req.auth.userId;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID is missing' });
+  }
+
   try {
     const book = await new Books({
-      userId: userId, // Utiliser "userId" en minuscules
+      userId: userId,
       ...req.body
     });
-    const savedBook = await book.save(); // Attendre que l'enregistrement soit terminé
+    const savedBook = await book.save();
     return res.status(201).json(savedBook);
   } catch (error) {
-    res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error });
   }
 };
+
 
 
 
 // Rate a book
 exports.rate = async (req, res) => {
   const userId = req.auth.userId;
-  const bookId = req.params.id; // Supposons que vous récupérez l'ID du livre depuis les paramètres
+  const bookId = req.params.id; 
 
-  const ratingValue = req.body.rating; // Supposons que vous récupérez la note depuis le corps de la requête
+  const ratingValue = req.body.rating; 
 
   if (ratingValue < 0 || ratingValue > 5) {
     return res.status(400).json({ message: 'Invalid rating value. Rating must be between 0 and 5.' });
@@ -36,17 +42,17 @@ exports.rate = async (req, res) => {
       return res.status(404).json({ message: 'Book not found' });
     }
 
-    // Vérifier si l'utilisateur a déjà noté ce livre
+    // Verify if the user has already rated the book
     const existingRating = book.ratings.find(rating => rating.userId.toString() === userId);
 
     if (existingRating) {
       return res.status(400).json({ message: 'You have already rated this book' });
     }
 
-    // Ajouter la nouvelle note
+    // Add the new rating
     book.ratings.push({ userId, grade: ratingValue });
 
-    // Recalculer la note moyenne
+    // Get the average rating 
     let totalRating = 0;
     for (const rating of book.ratings) {
       totalRating += rating.grade;
@@ -85,8 +91,17 @@ exports.getOne = async (req, res) => {
 
 
 exports.bestRatings = async (req, res) => {
+  try {
+    const bestRatedBooks = await Books.find()
+      .sort({ averageRating: -1 }) // Tri décroissant par la note moyenne
+      .limit(3); // Récupérer les trois premiers
 
+    return res.status(200).json(bestRatedBooks);
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+  }
 };
+
 
 exports.modify = async (req, res) => {
   Books.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })

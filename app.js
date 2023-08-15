@@ -23,9 +23,6 @@ mongoose.connect('mongodb+srv://henry:henrylvgpassword@levieuxgrimoire.fkn2cej.m
 const usersRoutes = require('./routes/users.routes');
 const booksRoutes = require('./routes/books.routes');
 
-
-
-
 app.use(cors());
 app.use(express.json());
 app.use((req, res, next) => {
