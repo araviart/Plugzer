@@ -1,9 +1,15 @@
+const auth = require("../middlewares/auth");
 const Books = require("../models/books.model");
 
 
 // Create a book page
 exports.create = async (req, res) => {
   const userId = req.auth.userId;
+  const title = req.body.title;
+  const author = req.body.author;
+  const imageUrl = req.body.imageUrl;
+  const year = req.body.year;
+  const genre = req.body.genre;
 
   if (!userId) {
     return res.status(400).json({ error: 'User ID is missing' });
@@ -12,7 +18,11 @@ exports.create = async (req, res) => {
   try {
     const book = await new Books({
       userId: userId,
-      ...req.body
+      title: title,
+      author: author,
+      imageUrl: imageUrl,
+      year: year,
+      genre: genre
     });
     const savedBook = await book.save();
     return res.status(201).json(savedBook);
@@ -27,9 +37,9 @@ exports.create = async (req, res) => {
 // Rate a book
 exports.rate = async (req, res) => {
   const userId = req.auth.userId;
-  const bookId = req.params.id; 
+  const bookId = req.params.id;
 
-  const ratingValue = req.body.rating; 
+  const ratingValue = req.body.rating;
 
   if (ratingValue < 0 || ratingValue > 5) {
     return res.status(400).json({ message: 'Invalid rating value. Rating must be between 0 and 5.' });
