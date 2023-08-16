@@ -4,32 +4,42 @@ const Books = require("../models/books.model");
 
 // Create a book page
 exports.create = async (req, res) => {
+  const host = req.get("host");
   const userId = req.auth.userId;
   const title = req.body.title;
   const author = req.body.author;
-  const imageUrl = req.body.imageUrl;
+  const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
   const year = req.body.year;
   const genre = req.body.genre;
+  const rating = req.body.rating;
 
   if (!userId) {
     return res.status(400).json({ error: 'User ID is missing' });
   }
 
   try {
-    const book = await new Books({
+    let bookData = {
       userId: userId,
       title: title,
       author: author,
       imageUrl: imageUrl,
       year: year,
-      genre: genre
-    });
+      genre: genre,
+    };
+
+    if (rating !== undefined) {
+      bookData.ratings = [{ userId, grade: rating }];
+    }
+
+    const book = new Books(bookData);
+
     const savedBook = await book.save();
     return res.status(201).json(savedBook);
   } catch (error) {
     res.status(500).json({ error });
   }
 };
+
 
 
 
@@ -103,8 +113,8 @@ exports.getOne = async (req, res) => {
 exports.bestRatings = async (req, res) => {
   try {
     const bestRatedBooks = await Books.find()
-      .sort({ averageRating: -1 }) // Tri décroissant par la note moyenne
-      .limit(3); // Récupérer les trois premiers
+      .sort({ averageRating: -1 })
+      .limit(3);
 
     return res.status(200).json(bestRatedBooks);
   } catch (error) {
