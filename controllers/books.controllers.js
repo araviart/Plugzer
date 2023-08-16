@@ -4,6 +4,7 @@ const Books = require("../models/books.model");
 
 // Create a book page
 exports.create = async (req, res) => {
+  console.log('Received request to create book:', req.body);
   const host = req.get("host");
   const userId = req.auth.userId;
   const title = req.body.title;
@@ -11,7 +12,7 @@ exports.create = async (req, res) => {
   const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
   const year = req.body.year;
   const genre = req.body.genre;
-  const rating = req.body.rating;
+  const rating = req.body.ratings;
 
   if (!userId) {
     return res.status(400).json({ error: 'User ID is missing' });
@@ -27,7 +28,7 @@ exports.create = async (req, res) => {
       genre: genre,
     };
 
-    if (rating !== undefined) {
+    if (rating.length > 0) {
       bookData.ratings = [{ userId, grade: rating }];
     }
 
