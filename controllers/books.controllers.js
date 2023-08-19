@@ -1,4 +1,3 @@
-const auth = require("../middlewares/auth");
 const Books = require("../models/books.model");
 
 
@@ -31,7 +30,7 @@ exports.create = async (req, res) => {
     if (rating.length > 0) {
       bookData.ratings = [{ userId, grade: rating }];
     }
-
+    console.log(bookData);
     const book = new Books(bookData);
 
     const savedBook = await book.save();
@@ -40,9 +39,6 @@ exports.create = async (req, res) => {
     res.status(500).json({ error });
   }
 };
-
-
-
 
 
 // Rate a book
