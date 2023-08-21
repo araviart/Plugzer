@@ -31,7 +31,7 @@ exports.create = async (req, res) => {
       imageUrl: imageUrl,
       year: year,
       genre: genre,
-      ratings: rating, 
+      ratings: rating,
     });
 
     const savedBook = await book.save();
@@ -109,7 +109,6 @@ exports.getOne = async (req, res) => {
     .catch(error => res.status(400).json({ error }))
 };
 
-
 exports.bestRatings = async (req, res) => {
   try {
     const bestRatedBooks = await Books.find()
@@ -124,40 +123,47 @@ exports.bestRatings = async (req, res) => {
 
 
 exports.modify = async (req, res) => {
-  try {
-    console.log('Received request to create book:', req.body);
+  if (req.file) {
+    try {
+      const bookData = JSON.parse(req.body.book);
+      const { title, author, year, genre } = bookData;
+      const host = req.get('host');
+      const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
 
-    const host = req.get("host");
-    const userId = req.auth.userId;
+      const updateBook = {
+        title: title,
+        author: author,
+        year: parseInt(year), // Fix the typo here
+        imageUrl: imageUrl,
+        genre: genre
+      };
+      console.log("updatedBook:", updateBook);
 
-    const bookData = JSON.parse(req.body.book);
+      await Books.updateOne({ _id: req.params.id }, updateBook);
+      res.status(200).json({ message: 'The Book has been succesfully updated' });
+    }
+    catch (error) { res.status(400).json({ error }) };
+  } else {
+    const { title, author, genre, year } = req.body;
 
-    const title = bookData.title;
-    const author = bookData.author;
-    const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
-    const year = bookData.year;
-    const genre = bookData.genre;
-    const rating = bookData.ratings;
-    
-    console.log("host", host, "userID", userId, "title", title, "author", author, "imageUrl", imageUrl, "year", year, "genre", genre, "rating", rating);
-
-    const updatedBook = {
+    const updateBook = {
       title: title,
       author: author,
-      year: year,
-      genre: genre,
-      ratings: rating,
+      year: parseInt(year),
+      genre: genre
     };
+    try {
+      console.log("updatedBook:", updateBook);
 
-    if (req.file) {
-      const host = req.get("host");
-      updatedBook.imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
+      await Books.updateOne({ _id: req.params.id }, updateBook);
+      res.status(200).json({ message: 'The book has been successfully updated' });
+    } catch (error) {
+      res.status(400).json({ error });
     }
-
-    await Books.updateOne({ _id: req.params.id }, updatedBook);
-
-    res.status(200).json({ message: 'The book has been successfully updated' });
-  } catch (error) {
-    res.status(400).json({ error });
   }
 };
+
+
+
+
+
