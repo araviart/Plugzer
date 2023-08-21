@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require('body-parser');
 const path = require("path");
 const cors = require("cors");
 require('dotenv').config();
@@ -23,7 +22,6 @@ mongoose.connect('mongodb+srv://henry:henrylvgpassword@levieuxgrimoire.fkn2cej.m
 const usersRoutes = require('./routes/users.routes');
 const booksRoutes = require('./routes/books.routes');
 app.use(express.json());
-app.use(cors());
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

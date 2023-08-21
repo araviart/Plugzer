@@ -11,7 +11,7 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = 7000
+var port = 4000
 app.set('port', port);
 
 /**

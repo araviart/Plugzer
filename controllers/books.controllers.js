@@ -3,35 +3,36 @@ const Books = require("../models/books.model");
 
 // Create a book page
 exports.create = async (req, res) => {
-  console.log('Received request to create book:', req.body);
-  const host = req.get("host");
-  const userId = req.auth.userId;
-  const title = req.body.title;
-  const author = req.body.author;
-  const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
-  const year = req.body.year;
-  const genre = req.body.genre;
-  const rating = req.body.ratings;
-
-  if (!userId) {
-    return res.status(400).json({ error: 'User ID is missing' });
-  }
-
   try {
-    let bookData = {
+    console.log('Received request to create book:', req.body);
+
+    const host = req.get("host");
+    const userId = req.auth.userId;
+
+    const bookData = JSON.parse(req.body.book);
+
+    const title = bookData.title;
+    const author = bookData.author;
+    const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
+    const year = bookData.year;
+    const genre = bookData.genre;
+    const rating = bookData.ratings;
+
+    console.log("host", host, "userID", userId, "title", title, "author", author, "imageUrl", imageUrl, "year", year, "genre", genre, "rating", rating);
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is missing' });
+    }
+
+    const book = new Books({
       userId: userId,
       title: title,
       author: author,
       imageUrl: imageUrl,
       year: year,
       genre: genre,
-    };
-
-    if (rating.length > 0) {
-      bookData.ratings = [{ userId, grade: rating }];
-    }
-    console.log(bookData);
-    const book = new Books(bookData);
+      ratings: rating, 
+    });
 
     const savedBook = await book.save();
     return res.status(201).json(savedBook);
@@ -39,6 +40,8 @@ exports.create = async (req, res) => {
     res.status(500).json({ error });
   }
 };
+
+
 
 
 // Rate a book
@@ -121,7 +124,40 @@ exports.bestRatings = async (req, res) => {
 
 
 exports.modify = async (req, res) => {
-  Books.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-    .then(() => res.status(200).json({ message: 'The book has been successfully updated' }))
-    .catch(error => res.status(400).json({ error }))
+  try {
+    console.log('Received request to create book:', req.body);
+
+    const host = req.get("host");
+    const userId = req.auth.userId;
+
+    const bookData = JSON.parse(req.body.book);
+
+    const title = bookData.title;
+    const author = bookData.author;
+    const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
+    const year = bookData.year;
+    const genre = bookData.genre;
+    const rating = bookData.ratings;
+    
+    console.log("host", host, "userID", userId, "title", title, "author", author, "imageUrl", imageUrl, "year", year, "genre", genre, "rating", rating);
+
+    const updatedBook = {
+      title: title,
+      author: author,
+      year: year,
+      genre: genre,
+      ratings: rating,
+    };
+
+    if (req.file) {
+      const host = req.get("host");
+      updatedBook.imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
+    }
+
+    await Books.updateOne({ _id: req.params.id }, updatedBook);
+
+    res.status(200).json({ message: 'The book has been successfully updated' });
+  } catch (error) {
+    res.status(400).json({ error });
+  }
 };
