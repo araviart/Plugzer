@@ -122,7 +122,7 @@ exports.modify = async (req, res) => {
       const updateBook = {
         title: title,
         author: author,
-        year: parseInt(year), // Fix the typo here
+        year: parseInt(year),
         imageUrl: imageUrl,
         genre: genre
       };
