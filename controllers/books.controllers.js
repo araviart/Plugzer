@@ -13,7 +13,7 @@ exports.create = async (req, res) => {
 
     const title = bookData.title;
     const author = bookData.author;
-    const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
+    const imageUrl = `${req.protocol}://${host}/images/${req.file.filename.replace(/\.jpeg|\.jpg|\.png/g, "-") + "optimized.webp"}`;
     const year = bookData.year;
     const genre = bookData.genre;
     const rating = bookData.ratings;
@@ -46,44 +46,33 @@ exports.create = async (req, res) => {
 
 // Rate a book
 exports.rate = async (req, res) => {
-  const userId = req.auth.userId;
-  const bookId = req.params.id;
-
-  const ratingValue = req.body.rating;
-
-  if (ratingValue < 0 || ratingValue > 5) {
-    return res.status(400).json({ message: 'Invalid rating value. Rating must be between 0 and 5.' });
-  }
-
   try {
-    const book = await Books.findById(bookId);
+    const book = await Books.findOne({ _id: req.params.id });
 
     if (!book) {
       return res.status(404).json({ message: 'Book not found' });
     }
 
-    // Verify if the user has already rated the book
-    const existingRating = book.ratings.find(rating => rating.userId.toString() === userId);
+    const hasAlreadyBeenRated = book.ratings.find(rating => rating.userId === req.auth.userId);
 
-    if (existingRating) {
-      return res.status(400).json({ message: 'You have already rated this book' });
+    if (!hasAlreadyBeenRated) {
+      book.ratings.push({
+        userId: req.auth.userId,
+        grade: req.body.rating
+      });
+
+      const totalRating = book.ratings.reduce((accumulator, currentValue) => accumulator + currentValue.grade, 0);
+      const newAverageRating = totalRating / book.ratings.length;
+      book.averageRating = newAverageRating;
+
+      await book.save();
+
+      return res.status(201).json(book);
+    } else {
+      return res.status(401).json({ message: 'Book already rated' });
     }
-
-    // Add the new rating
-    book.ratings.push({ userId, grade: ratingValue });
-
-    // Get the average rating 
-    let totalRating = 0;
-    for (const rating of book.ratings) {
-      totalRating += rating.grade;
-    }
-    book.averageRating = totalRating / book.ratings.length;
-
-    await book.save();
-
-    return res.status(200).json({ message: 'Rating added successfully', book });
   } catch (error) {
-    res.status(500).json({ error: 'Something went wrong' });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -121,14 +110,14 @@ exports.bestRatings = async (req, res) => {
   }
 };
 
-
+// Modify a book
 exports.modify = async (req, res) => {
   if (req.file) {
     try {
       const bookData = JSON.parse(req.body.book);
       const { title, author, year, genre } = bookData;
       const host = req.get('host');
-      const imageUrl = `${req.protocol}://${host}/images/${req.file.filename}`;
+      const imageUrl = `${req.protocol}://${host}/images/${req.file.filename.replace(/\.jpeg|\.jpg|\.png/g, "-") + "optimized.webp"}`;
 
       const updateBook = {
         title: title,
