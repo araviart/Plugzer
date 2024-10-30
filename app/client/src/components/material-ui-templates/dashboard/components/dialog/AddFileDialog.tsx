@@ -7,8 +7,8 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import { Box, Typography } from '@mui/material';
+import AttachFileIcon from '@mui/icons-material/AttachFile'; // Icône de fichier
 
 interface AddFileDialogProps {
   open: boolean;
@@ -16,14 +16,23 @@ interface AddFileDialogProps {
 }
 
 export default function AddFileDialog({ open, handleClose }: AddFileDialogProps) {
-  const [fileName, setFileName] = React.useState('');
-  const [fileType, setFileType] = React.useState('');
+  const [file, setFile] = React.useState<File | null>(null); // État pour le fichier
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    
     // Logic to handle the file upload goes here
-    console.log('New file added:', { fileName, fileType });
+    if (file) {
+      console.log('New file added:', {  file });
+      // Vous pouvez également ajouter une logique pour télécharger le fichier ici
+    }
+
     handleClose();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0] || null; // Récupérer le premier fichier sélectionné
+    setFile(selectedFile);  
   };
 
   return (
@@ -33,7 +42,7 @@ export default function AddFileDialog({ open, handleClose }: AddFileDialogProps)
       PaperProps={{
         component: 'form',
         onSubmit: handleSubmit,
-        sx: { backgroundImage: 'none' },
+        sx: { backgroundImage: 'none', minWidth: '500px' }, 
       }}
     >
       <DialogTitle>Ajouter un fichier</DialogTitle>
@@ -41,35 +50,43 @@ export default function AddFileDialog({ open, handleClose }: AddFileDialogProps)
         sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}
       >
         <DialogContentText>
-          Veuillez entrer le nom du fichier et sélectionner le type de fichier à ajouter.
+          Veuillez sélectionner le fichier à ajouter.
         </DialogContentText>
-        
-        <OutlinedInput
-          autoFocus
-          required
-          margin="dense"
-          id="fileName"
-          label="Nom du fichier"
-          placeholder="Entrez le nom du fichier"
-          fullWidth
-          value={fileName}
-          onChange={(e) => setFileName(e.target.value)}
-        />
-        
-        <InputLabel id="file-type-label">Type de fichier</InputLabel>
-        <Select
-          labelId="file-type-label"
-          value={fileType}
-          onChange={(e) => setFileType(e.target.value)}
-          fullWidth
-        >
-          <MenuItem value=""><em>Choisissez un type</em></MenuItem>
-          <MenuItem value="image">Image</MenuItem>
-          <MenuItem value="video">Vidéo</MenuItem>
-          <MenuItem value="audio">Audio</MenuItem>
-          <MenuItem value="document">Document</MenuItem>
-          <MenuItem value="other">Autre</MenuItem>
-        </Select>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "center", gap: 5, my:2 }}>
+            <InputLabel htmlFor="file-upload" sx={{ mt: 2, width: "fit-content" }}>
+            Sélectionner un fichier
+            </InputLabel>
+            <input
+            accept="*/*" // Peut être limité à certains types de fichiers si nécessaire
+            id="file-upload"
+            type="file"
+            onChange={handleFileChange}
+            style={{ display: 'none' }} // Masquer l'input pour le styliser avec un bouton
+            />
+            <label htmlFor="file-upload" style={{width: "fit-content"}}>
+            <Button variant="contained" component="span">
+                Choisir un fichier
+            </Button>
+            </label>
+        </Box>
+
+        {/* Aperçu du fichier sélectionné */}
+        {file && (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mt: 2,
+              p: 1,
+              border: '1px dashed grey',
+              borderRadius: '4px',
+            }}
+          >
+            <AttachFileIcon sx={{ mr: 1 }} />
+            <Typography variant="body1">{file.name}</Typography>
+          </Box>
+        )}
       </DialogContent>
       <DialogActions sx={{ pb: 3, px: 3 }}>
         <Button onClick={handleClose}>Annuler</Button>

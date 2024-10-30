@@ -68,7 +68,7 @@ export default function FilesGrid() {
   return (
     <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' }, minHeight: "100vh", minWidth: "100%" }}>
       <Typography component="h1" variant="h6" sx={{ mb: 2 }}>
-        Bonjour<span style={{ fontWeight: 'bold', color: theme.palette.primary.main }}>NOMUTILISATEUR</span>  !
+        Bonjour <span style={{ fontWeight: 'bold', color: theme.palette.primary.main }}>NOMUTILISATEUR</span>  !
       </Typography>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
