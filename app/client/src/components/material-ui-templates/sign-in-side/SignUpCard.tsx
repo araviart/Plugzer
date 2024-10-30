@@ -69,7 +69,7 @@ export default function SignUpCard() {
   };
 
   const validateInputs = () => {
-    const username = (document.getElementById('username') as HTMLInputElement).value;
+    //const username = (document.getElementById('username') as HTMLInputElement).value;
     const email = (document.getElementById('email') as HTMLInputElement).value;
     const password = (document.getElementById('password') as HTMLInputElement).value;
     const confirmPassword = (document.getElementById('confirmPassword') as HTMLInputElement).value;

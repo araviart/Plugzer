@@ -1,7 +1,6 @@
 import { Box, Card, CardContent, Stack, Typography, Icon, useTheme } from '@mui/material'
 import FolderIcon from '@mui/icons-material/Folder'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
-import React from 'react'
 import { Directory, File } from './FilesGrid'
 import CardDropdown from './CardDropDown'
 import { Link, useLocation } from 'react-router-dom'

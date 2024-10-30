@@ -1,11 +1,7 @@
 import * as React from 'react';
-import { Button, Box, Typography, Grid, useTheme, Chip } from '@mui/material';
-import CreateNewFolder from '@mui/icons-material/CreateNewFolder';
-import FileUpload from '@mui/icons-material/FileUpload';
+import { Button, Box, Typography, useTheme, Chip } from '@mui/material';
 import Copyright from '../internals/components/Copyright';
-import ElementCard from './ElementCard';
 import AddFileDialog from './dialog/AddFileDialog';
-import AddFolderDialog from './dialog/AddFolderDialog';
 import ExpirationDialog from './dialog/ExpirationDialog'; // Importez le ExpirationDialog
 import CustomizedDataGrid from './CustomizedDataGrid';
 import Grid2 from '@mui/material/Grid2';
@@ -85,11 +81,9 @@ const initialRows: GridRowsProp = [
 
 export default function LinksGrid() {
     const [openFileDialog, setOpenFileDialog] = React.useState(false);
-    const [openFolderDialog, setOpenFolderDialog] = React.useState(false);
     const [openExpirationDialog, setOpenExpirationDialog] = React.useState(false); // Etat pour ExpirationDialog
     const [selectedLinks, setSelectedLinks] = React.useState<string[]>([]);
-    const [rows, setRows] = React.useState(initialRows); // État pour les lignes
-    const [expirationDate, setExpirationDate] = React.useState<Date | null>(null); // Date d'expiration sélectionnée
+    const [rows, setRows] = React.useState(initialRows); // État pour les ligne
     const theme = useTheme();
 
     const handleMakeUnavailable = () => {
@@ -146,7 +140,7 @@ export default function LinksGrid() {
                         variant="contained"
                         disabled={selectedLinks.length === 0}
                         startIcon={<TimeIcon />}
-                        color={selectedLinks.length === 0 ? "default" : "primary"}
+                        color={selectedLinks.length === 0 ? "inherit" : "primary"}
                         onClick={handleExtendExpiration}
                     >
                         Prolonger l'expiration

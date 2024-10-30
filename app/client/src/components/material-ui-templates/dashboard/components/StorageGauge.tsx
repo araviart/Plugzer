@@ -1,5 +1,4 @@
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
-import * as React from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
 
 export default function StorageGauge() {
