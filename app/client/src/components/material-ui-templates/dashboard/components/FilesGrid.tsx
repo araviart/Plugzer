@@ -57,7 +57,7 @@ export default function FilesGrid() {
   const theme = useTheme();
   
   // État pour stocker les dossiers (vous pouvez l'adapter selon votre logique)
-  const [folders, setFolders] = React.useState<string[]>([]);
+  const [_, setFolders] = React.useState<string[]>([]);
 
   const handleAddFolder = (folderName: string) => {
     setFolders((prev) => [...prev, folderName]); // Ajouter le nouveau dossier à la liste

@@ -1,13 +1,10 @@
 import * as React from 'react';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import IconButton, { IconButtonOwnProps } from '@mui/material/IconButton';
+import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
-import { GridExpandMoreIcon, GridMoreVertIcon } from '@mui/x-data-grid';
-import { MoreHoriz, MoreHorizRounded } from '@mui/icons-material';
-import { Link, useLocation } from 'react-router-dom';
+import { MoreHorizRounded } from '@mui/icons-material';
 
 interface Props {
   fileName: string;
@@ -16,7 +13,6 @@ interface Props {
 export default function CardDropdown(props: Props) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const location = useLocation();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();

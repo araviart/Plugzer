@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import Avatar from '@mui/material/Avatar';
 import MuiDrawer, { drawerClasses } from '@mui/material/Drawer';
@@ -9,7 +8,6 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button'; // Import du bouton
 import AddIcon from '@mui/icons-material/Add'; // Import de l'icône +
 import MenuContent from './MenuContent';
-import CardAlert from './CardAlert';
 import OptionsMenu from './OptionsMenu';
 
 const drawerWidth = 240;

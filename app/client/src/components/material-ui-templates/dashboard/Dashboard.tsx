@@ -3,7 +3,6 @@ import type {} from '@mui/x-date-pickers/themeAugmentation';
 import type {} from '@mui/x-charts/themeAugmentation';
 import type {} from '@mui/x-data-grid/themeAugmentation';
 import type {} from '@mui/x-tree-view/themeAugmentation';
-import { alpha, useTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -31,7 +30,6 @@ const xThemeComponents = {
 
 export default function Dashboard(props: { disableCustomTheme?: boolean }) {
   const location = useLocation();
-  const theme = useTheme();
 
   React.useEffect(() => {
     console.log('location changed', location);
@@ -47,10 +45,7 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
         <Box
           component="main"
           sx={(theme) => ({
-            flexGrow: 1,
-            backgroundColor: theme.vars
-              ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
-              : alpha(theme.palette.background.default, 1),
+            flexGrow: 1,  
             overflow: 'auto',
           })}
         >
