@@ -5,7 +5,7 @@ import {App} from "../type/app";
 export function getAll(app: App) {
     return async (req: Request, res: Response, next: NextFunction) => {
 
-        app.repository.todoRepository.getAll().then(data => console.log(data))
+        //app.repository.todoRepository.getAll().then(data => console.log(data))
 
         res.write("Je suis dans le controller \n")
         res.send()

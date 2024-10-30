@@ -2,7 +2,6 @@ import express from "express";
 import {getAll, getOne, postThings} from "../controller/api_controller";
 import {checkSchema} from "express-validator";
 import {user_schema} from "../schema/user_schema";
-import {TodoRepositoryI} from "../type/todo";
 import {App} from "../type/app";
 
 export function getRoutes(app: App) {
