@@ -41,13 +41,14 @@ export default function SignUpCard() {
     if (validateInputs()) {
       console.log("Form soumit");
       const data = {
-        username: (document.getElementById('username') as HTMLInputElement).value,
+        nom: (document.getElementById('username') as HTMLInputElement).value,
         email: (document.getElementById('email') as HTMLInputElement).value,
         password: (document.getElementById('password') as HTMLInputElement).value,
       };
 
+      console.log("ça fetch normalement")
       try {
-        const response = await fetch('http://localhost:3000/api/auth/login', {
+        const response = await fetch('http://localhost:3000/api/auth/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -183,25 +184,6 @@ export default function SignUpCard() {
             </RouterLink>
           </span>
         </Typography>
-      </Box>
-      <Divider>or</Divider>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => alert('Sign in with Google')}
-          startIcon={<GoogleIcon />}
-        >
-          Sign in with Google
-        </Button>
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => alert('Sign in with Facebook')}
-          startIcon={<FacebookIcon />}
-        >
-          Sign in with Facebook
-        </Button>
       </Box>
     </Card>
   );
