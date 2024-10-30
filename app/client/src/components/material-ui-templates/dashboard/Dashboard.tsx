@@ -44,7 +44,7 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
         {/* Main content */}
         <Box
           component="main"
-          sx={(theme) => ({
+          sx={(_) => ({
             flexGrow: 1,  
             overflow: 'auto',
           })}
