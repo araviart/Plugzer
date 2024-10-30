@@ -11,7 +11,9 @@ export interface FileLink {
  }
 
 export interface FileRepositoryI {
-  getFiles: () => Promise<File[]>
-  addFile: (file: File) => Promise<File>
-  createLink: (fileLink: FileLink) => Promise<FileLink>
+  getFiles(user: UserI): Promise<File[]>;
+  addFile: (file: File) => Promise<void>;
+  createLink: (fileLink: FileLink) => Promise<FileLink>;
 }
+
+
