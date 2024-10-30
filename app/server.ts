@@ -8,6 +8,9 @@ import {App} from "./type/app";
 import * as process from "node:process";
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { register, login } from './controller/auth_controller';
+
+
 
 // Get the directory name in an ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -39,6 +42,9 @@ server.use(express.json())
 
 // Servir les fichiers statiques de l'application React
 server.use(express.static(path.join(__dirname, 'client/dist')))
+
+server.post('/api/auth/register', (req, res) => register(app, req, res));
+server.post('/api/auth/login', (req, res) => login(app, req, res));
 
 // Routes API
 server.use('/api', routes)
