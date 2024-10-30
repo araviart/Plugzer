@@ -9,7 +9,7 @@ export function getUserRepository(database: Pool) {
             return results[0] || null;
         },
         async insertUser(user: UserI): Promise<void> {
-            await database.execute("INSERT INTO utilisateur (nom, email, mdp) VALUES (?, ?, ?)", [user.nom, user.email, user.password]);
+            await database.execute("INSERT INTO utilisateur (nom, email, password) VALUES (?, ?, ?)", [user.nom, user.email, user.password]);
         }
     };
 }
