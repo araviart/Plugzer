@@ -20,6 +20,7 @@ import {
 } from './theme/customizations';
 import { useLocation } from 'react-router-dom';
 import FilesGrid from './components/FilesGrid';
+import LinksGrid from './components/LinksGrid';
 
 const xThemeComponents = {
   ...chartsCustomizations,
@@ -71,7 +72,7 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
                 <FilesGrid/>
               )
               : location.pathname === "/links" ? (
-                <></>
+                <LinksGrid/>
               )
               :
               <p>Page non trouvée</p>

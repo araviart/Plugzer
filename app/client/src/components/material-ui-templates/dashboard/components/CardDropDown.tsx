@@ -1,26 +1,37 @@
 import * as React from 'react';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import Box from '@mui/material/Box';
 import IconButton, { IconButtonOwnProps } from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
+import { GridExpandMoreIcon, GridMoreVertIcon } from '@mui/x-data-grid';
+import { MoreHoriz, MoreHorizRounded } from '@mui/icons-material';
+import { Link, useLocation } from 'react-router-dom';
 
-export default function UserMenuDropdown(props: IconButtonOwnProps) {
+interface Props {
+  fileName: string;
+}
+
+export default function CardDropdown(props: Props) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const location = useLocation();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
   
-  const handleClose = () => {
+  const handleClose = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation(); // Empêche la propagation lors de la fermeture du menu
     setAnchorEl(null);
   };
 
   return (
-    <React.Fragment>
+    <React.Fragment
+    >
       <IconButton
         onClick={handleClick}
         disableRipple
@@ -30,7 +41,7 @@ export default function UserMenuDropdown(props: IconButtonOwnProps) {
         aria-expanded={open ? 'true' : undefined}
         {...props}
       >
-        <AccountCircleIcon />
+        <MoreHorizRounded/>
       </IconButton>
       <Menu
         anchorEl={anchorEl}
@@ -46,11 +57,12 @@ export default function UserMenuDropdown(props: IconButtonOwnProps) {
           },
         }}
       >
-        <MenuItem onClick={handleClose}>Modifier mes informations</MenuItem>
-        <MenuItem onClick={handleClose}>Voir mes fichiers</MenuItem>
+        <MenuItem onClick={handleClose}>Afficher le fichier</MenuItem>
+        <MenuItem onClick={handleClose}>Générer un lien de partage</MenuItem>
+        <MenuItem onClick={handleClose}>Voir les liens actif</MenuItem>
         <Divider />
         <MenuItem onClick={handleClose}>
-          <Typography color="error">Déconnexion</Typography>
+          <Typography color="error">Supprimer</Typography>
         </MenuItem>
       </Menu>
     </React.Fragment>
