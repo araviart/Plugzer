@@ -37,7 +37,7 @@ export default function MainGrid() {
     <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' }, minHeight: "100vh", minWidth:"100%" }}>
       {/* cards */}
       <Typography component="h1" variant="h6" sx={{ mb: 2 }}>
-      Bonjour <span style={{ fontWeight: 'bold', color: theme.palette.primary.main }}>NOMUTILISATEUR</span> !
+      Bonjour <span style={{ fontWeight: 'bold', color: theme.palette.primary.main }}>{JSON.parse(localStorage.getItem('authInfos')!).name}</span> !
      </Typography>
 
      <Typography component="h2" variant="h6" sx={{ mb: 2 }}>

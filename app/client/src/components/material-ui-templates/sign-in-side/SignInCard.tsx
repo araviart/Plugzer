@@ -64,6 +64,7 @@ export default function SignInCard() {
     const data = {
       email: (document.getElementById('email') as HTMLInputElement).value,
         password: (document.getElementById('password') as HTMLInputElement).value,
+        remember: (document.getElementById('remember') as HTMLInputElement).checked,
     }
 
     console.log(data);
@@ -188,7 +189,7 @@ export default function SignInCard() {
           />
         </FormControl>
         <FormControlLabel
-          control={<Checkbox value="remember" color="primary" />}
+          control={<Checkbox id="remember" value="remember" color="primary" />}
           label="Remember me"
         />
         <ForgotPassword open={open} handleClose={handleClose} />

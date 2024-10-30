@@ -10,6 +10,8 @@ import ListItemIcon, { listItemIconClasses } from '@mui/material/ListItemIcon';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import MenuButton from './MenuButton';
+import { useAuth } from '../../../../AuthContext';
+import AreYouSureDialog from './dialog/AreYouSureDialog';
 
 const MenuItem = styled(MuiMenuItem)({
   margin: '2px 6px',
@@ -18,7 +20,10 @@ const MenuItem = styled(MuiMenuItem)({
 
 export default function OptionsMenu() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
   const open = Boolean(anchorEl);
+
+  const { logout } = useAuth();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -27,6 +32,13 @@ export default function OptionsMenu() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleLogoutClick = () => {
+    setConfirmOpen(true);
+    handleClose();
+  };
+
+  const handleConfirmClose = () => setConfirmOpen(false);
 
   return (
     <React.Fragment>
@@ -61,7 +73,7 @@ export default function OptionsMenu() {
         <MenuItem onClick={handleClose}>Voir mes fichiers</MenuItem>
         <Divider />
         <MenuItem
-          onClick={handleClose}
+          onClick={handleLogoutClick}
           sx={{
             color: 'error.main', // Texte rouge pour déconnexion
             [`& .${listItemIconClasses.root}`]: {
@@ -76,6 +88,12 @@ export default function OptionsMenu() {
           </ListItemIcon>
         </MenuItem>
       </Menu>
+      <AreYouSureDialog
+        open={confirmOpen}
+        text="Êtes-vous sûr de vouloir vous déconnecter ?"
+        onConfirm={logout}
+        handleClose={handleConfirmClose}
+      />
     </React.Fragment>
   );
 }

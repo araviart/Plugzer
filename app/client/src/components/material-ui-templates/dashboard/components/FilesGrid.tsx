@@ -6,6 +6,7 @@ import Copyright from '../internals/components/Copyright';
 import ElementCard from './ElementCard';
 import AddFileDialog from './dialog/AddFileDialog';
 import AddFolderDialog from './dialog/AddFolderDialog';
+import { useAuth } from '../../../../AuthContext';
 
 export interface File {
     id: string;
@@ -52,6 +53,7 @@ const data: treeViewData = {
 
 
 export default function FilesGrid() {
+
   const [openFileDialog, setOpenFileDialog] = React.useState(false);
   const [openFolderDialog, setOpenFolderDialog] = React.useState(false);
   const theme = useTheme();
@@ -68,7 +70,7 @@ export default function FilesGrid() {
   return (
     <Box sx={{ width: '100%', maxWidth: { sm: '100%', md: '1700px' }, minHeight: "100vh", minWidth: "100%" }}>
       <Typography component="h1" variant="h6" sx={{ mb: 2 }}>
-        Bonjour <span style={{ fontWeight: 'bold', color: theme.palette.primary.main }}>NOMUTILISATEUR</span>  !
+        Bonjour <span style={{ fontWeight: 'bold', color: theme.palette.primary.main }}>{JSON.parse(localStorage.getItem('authInfos')!).name}</span>  !
       </Typography>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
