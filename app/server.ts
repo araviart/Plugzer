@@ -1,23 +1,20 @@
-import express from 'express'
-import cors from 'cors'
-import {getRoutes} from "./route/api";
-import {getAdminRoutes} from "./route/admin";
-import mysql from 'mysql2/promise'
-import {getRepository} from "./repository/repository";
-import {App} from "./type/app";
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import { getRoutes } from "./route/api";
+import { getAdminRoutes } from "./route/admin";
+import mysql from 'mysql2/promise';
+import { getRepository } from "./repository/repository";
+import { App } from "./type/app";
 import * as process from "node:process";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { register, login } from './controller/auth_controller';
 
-
-
-// Get the directory name in an ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const server = express()
-const port = 3000
+const server = express();
+const port = 3000;
 
 const database = mysql.createPool({
     host: process.env.DB_HOST,
@@ -25,42 +22,45 @@ const database = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: "express"
-})
+});
 
-server.use(cors())
+server.use(cors());
 
-const repository = getRepository(database)
+const repository = getRepository(database);
 
 const app: App = {
     repository
-}
+};
 
-const routes = getRoutes(app)
-const adminRoutes = getAdminRoutes()
+const routes = getRoutes(app);
+const adminRoutes = getAdminRoutes();
 
-server.use(express.json())
+server.use(express.json());
 
-// Servir les fichiers statiques de l'application React
-server.use(express.static(path.join(__dirname, 'client/dist')))
+server.use(express.static(path.join(__dirname, 'client/dist')));
 
-server.post('/api/auth/register', (req, res) => register(app, req, res));
-server.post('/api/auth/login', (req, res) => login(app, req, res));
+const bindApp = (handler: (app: App, req: Request, res: Response) => Promise<void>) => {
+    return (req: Request, res: Response) => handler(app, req, res);
+};
 
-// Routes API
-server.use('/api', routes)
-// server.use("/admin", adminRoutes)
+server.post('/api/auth/register', bindApp(register));
+server.post('/api/auth/login', bindApp(login));
 
-// Rediriger toutes les autres requêtes vers l'application React
+server.use('/api', routes);
 server.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/dist', 'index.html'))
-})
+    res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
+});
 
-// Gestion des erreurs 404 pour les routes API
 server.use('/api', (req, res, next) => {
-    res.status(404)
+    res.status(404);
     res.json({
         message: "t'es perdu"
-    })
-})
+    });
+});
 
-server.listen(port, () => console.log(`App running on port ${port}`))
+// Add a simple test route
+server.get('/api/test', (req, res) => {
+    res.json({ message: "Server is running" });
+});
+
+server.listen(port, () => console.log(`App running on port ${port}`));
