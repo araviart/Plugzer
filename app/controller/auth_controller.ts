@@ -40,7 +40,7 @@ export async function register(app: App, req: Request, res: Response): Promise<v
 export async function login(app: App, req: Request, res: Response): Promise<void> {
     console.log("logging in")
     console.log(req.body)
-    const { email, password } = req.body;
+    const { email, password, remember } = req.body;
 
     if (!email || !password) {
         res.status(400).json({ message: "Les champs 'email' et 'mot de passe' sont requis." });
@@ -70,7 +70,8 @@ export async function login(app: App, req: Request, res: Response): Promise<void
             return;
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+        console.log("will remember", remember)
+        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: remember ? '7d' :  '1h'});
         res.json({ message: "Connexion réussie", token, name: user.nom });
     } catch (error) {
         console.error("Erreur lors de la connexion:", error);
