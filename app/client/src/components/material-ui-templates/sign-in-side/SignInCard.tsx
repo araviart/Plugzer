@@ -15,6 +15,7 @@ import { styled } from '@mui/material/styles';
 
 import ForgotPassword from './ForgotPassword';
 import { SitemarkIcon } from './CustomIcons';
+import { useAuth } from '../../../AuthContext';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -41,6 +42,10 @@ export default function SignInCard() {
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [open, setOpen] = React.useState(false);
 
+  const [signInMessage, setSignInMessage] = React.useState('');
+
+  const {login} = useAuth();
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -49,16 +54,46 @@ export default function SignInCard() {
     setOpen(false);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSignInMessage('');
     if (emailError || passwordError) {
       event.preventDefault();
       return;
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const data = {
+      email: (document.getElementById('email') as HTMLInputElement).value,
+        password: (document.getElementById('password') as HTMLInputElement).value,
+    }
+
+    console.log(data);
+
+    try {
+      const response = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log(result);
+        localStorage.setItem('authInfos', JSON.stringify({
+          name: result.name,
+          token: result.token,
+          email: data.email,
+        }));
+        login();
+      } else {
+        setSignInMessage(result.message || 'Échec de l\'inscription.');
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'inscription:", error);
+      setSignInMessage('Erreur du serveur. Veuillez réessayer plus tard.');
+    }
+
   };
 
   const validateInputs = () => {
@@ -160,6 +195,11 @@ export default function SignInCard() {
         <Button type="submit" fullWidth variant="contained" onClick={validateInputs}>
           Sign in
         </Button>
+        {signInMessage && (
+          <Typography color={'error.main'}>
+            {signInMessage}
+          </Typography>
+        )}
         <Typography sx={{ textAlign: 'center' }}>
           Don&apos;t have an account?{' '}
           <span>

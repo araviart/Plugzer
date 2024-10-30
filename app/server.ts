@@ -8,7 +8,8 @@ import { App } from "./type/app";
 import * as process from "node:process";
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { register, login } from './controller/auth_controller';
+import { register, login, verifyToken } from './controller/auth_controller';
+import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +22,7 @@ const database = mysql.createPool({
     port: 3306,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: "express"
+    database: "plugzer"
 });
 
 server.use(cors());
@@ -45,6 +46,7 @@ const bindApp = (handler: (app: App, req: Request, res: Response) => Promise<voi
 
 server.post('/api/auth/register', bindApp(register));
 server.post('/api/auth/login', bindApp(login));
+server.get('/api/verify-token', bindApp(verifyToken));
 
 server.use('/api', routes);
 server.get('*', (req, res) => {
