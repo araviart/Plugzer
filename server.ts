@@ -1,11 +1,14 @@
 #!/usr/bin/env node
+import { Request, Response } from "express";
+import app from "./app";
+import http from "http";
 
 /**
  * Module dependencies.
  */
 
-var app = require('./app');
-var http = require('http');
+// var app = require('./app');
+// var http = require('http');
 
 /**
  * Get port from environment and store in Express.
@@ -24,6 +27,6 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port, (req, res) => {
+server.listen(port, () => {
   console.log("Listening on the port", port);
 });
