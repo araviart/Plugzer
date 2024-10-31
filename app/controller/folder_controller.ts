@@ -56,3 +56,16 @@ export async function getFolders(app: App, req: Request, res: Response): Promise
         return;
     });
 }
+
+export async function deleteFolder(app: App, req: Request, res: Response): Promise<void> {
+    const token = req.headers.authorization?.split(" ")[1];
+    console.log("token", token);
+
+    verifyTokenAndGetUser(token).then( async (userId) =>{
+        await app.repository.folderRepository.deleteFolder(userId, req.params.id as unknown as number, req.body.force as boolean ?? false);
+        res.json({ message: "Dossier supprimé avec succès." });
+    }).catch((error) => {
+        res.status(401).json({ message: error.message });
+        return;
+    });
+}

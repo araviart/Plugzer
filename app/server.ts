@@ -9,7 +9,7 @@ import * as process from "node:process";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { register, login, verifyToken } from './controller/auth_controller';
-import { addFolder, getFolders } from './controller/folder_controller'; 
+import { addFolder, getFolders, deleteFolder } from './controller/folder_controller'; 
 import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -50,7 +50,7 @@ server.post('/api/auth/login', bindApp(login));
 server.get('/api/verify-token', bindApp(verifyToken));
 server.post('/api/folder', bindApp(addFolder));
 //server.put('/api/folder/:id', bindApp(updateFolder));
-//server.delete('/api/folder/:id', bindApp(deleteFolder));
+server.delete('/api/folder/:id', bindApp(deleteFolder));
 
 // je veux que sur la route folder?id=... ça le fasse
 server.get('/api/folder', bindApp(getFolders));
