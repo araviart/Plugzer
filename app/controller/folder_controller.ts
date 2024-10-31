@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import { App } from "../type/app";
 import { verifyTokenAndGetUser } from "./auth_controller";
 
-const JWT_SECRET = "secretkeyg";
 
 /* 
 CREATE TABLE dossier (

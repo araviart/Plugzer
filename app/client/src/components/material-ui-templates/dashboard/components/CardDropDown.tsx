@@ -38,6 +38,7 @@ export default function CardDropdown(props: Props) {
 
   const deleteElement = async ({force}:{force:boolean}) => {
     const authInfos = localStorage.getItem('authInfos');
+    const isFile = (element: Directory | File): element is File => (element as File).taille_fichier !== undefined;
     if (authInfos) {
       const { token } = JSON.parse(authInfos);
       
@@ -47,7 +48,7 @@ export default function CardDropdown(props: Props) {
 
       console.log(token)
       try {
-        const response = await fetch(`http://localhost:3000/api/folder/${props.element.id}`, {
+        const response = await fetch(`http://localhost:3000/api/${isFile(props.element) ? 'file' : 'folder'}/${props.element.id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

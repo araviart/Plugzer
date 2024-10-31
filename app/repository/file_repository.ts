@@ -5,6 +5,12 @@ import { UserI } from "../type/user";
 
 export function getFileRepository(database: Pool): FileRepositoryI {
   return {
+    async deleteFile(userId: number, fileId: number): Promise<void> {
+      console.log('delete file');
+      console.log('fileId', fileId);
+      console.log('userId', userId);
+      await database.execute("DELETE FROM storage WHERE utilisateur_id = ? AND id = ?", [userId, fileId]);
+    },
     async deleteFilesInsideFolder(userId: number, folderId: number): Promise<void> {
       console.log('delete files inside folder');
       console.log('folderId', folderId);

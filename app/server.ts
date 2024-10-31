@@ -10,6 +10,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { register, login, verifyToken } from './controller/auth_controller';
 import { addFolder, getFolders, deleteFolder } from './controller/folder_controller'; 
+import {deleteFile} from './controller/file_controller';
 import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -54,6 +55,8 @@ server.delete('/api/folder/:id', bindApp(deleteFolder));
 
 // je veux que sur la route folder?id=... ça le fasse
 server.get('/api/folder', bindApp(getFolders));
+
+server.delete('/api/file/:id', bindApp(deleteFile));
 
 server.use('/api', routes);
 server.get('*', (req, res) => {

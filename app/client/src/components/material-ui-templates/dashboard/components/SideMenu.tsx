@@ -9,6 +9,7 @@ import Button from '@mui/material/Button'; // Import du bouton
 import AddIcon from '@mui/icons-material/Add'; // Import de l'icône +
 import MenuContent from './MenuContent';
 import OptionsMenu from './OptionsMenu';
+import StorageGauge from './StorageGauge';
 
 const drawerWidth = 240;
 
@@ -42,14 +43,15 @@ export default function SideMenu() {
           p: 1.5,
         }}
       >
-        <Button
+        {/* <Button
           variant="contained" // Utiliser le style "contained" pour une couleur de fond
           color="primary" // Couleur primaire
           startIcon={<AddIcon />} // Ajouter l'icône "+" à gauche
           fullWidth // Rendre le bouton pleine largeur
         >
           Ajouter un fichier
-        </Button>
+        </Button> */}
+        <StorageGauge/>
       </Box>
       <Divider />
       <MenuContent />
