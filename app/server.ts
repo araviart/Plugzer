@@ -8,7 +8,10 @@ import { App } from "./type/app";
 import * as process from "node:process";
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { register, login } from './controller/auth_controller';
+import { register, login, verifyToken } from './controller/auth_controller';
+import { addFolder, getFolders, deleteFolder, renameFolder } from './controller/folder_controller'; 
+import {deleteFile} from './controller/file_controller';
+import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,11 +20,11 @@ const server = express();
 const port = 3000;
 
 const database = mysql.createPool({
-    host: process.env.DB_HOST,
+    host: "localhost",
     port: 3306,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: "express"
+    database: "plugzer"
 });
 
 server.use(cors());
@@ -45,6 +48,16 @@ const bindApp = (handler: (app: App, req: Request, res: Response) => Promise<voi
 
 server.post('/api/auth/register', bindApp(register));
 server.post('/api/auth/login', bindApp(login));
+server.get('/api/verify-token', bindApp(verifyToken));
+server.post('/api/folder', bindApp(addFolder));
+//server.put('/api/folder/:id', bindApp(updateFolder));
+server.patch('/api/folder/:id', bindApp(renameFolder));
+server.delete('/api/folder/:id', bindApp(deleteFolder));
+
+// je veux que sur la route folder?id=... ça le fasse
+server.get('/api/folder', bindApp(getFolders));
+
+server.delete('/api/file/:id', bindApp(deleteFile));
 
 server.use('/api', routes);
 server.get('*', (req, res) => {

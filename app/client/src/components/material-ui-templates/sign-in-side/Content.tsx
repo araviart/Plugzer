@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -9,31 +8,32 @@ import SettingsSuggestRoundedIcon from '@mui/icons-material/SettingsSuggestRound
 import ThumbUpAltRoundedIcon from '@mui/icons-material/ThumbUpAltRounded';
 
 import { SitemarkIcon } from './CustomIcons';
+import { CloudUploadRounded, LockRounded, ShareRounded, SpeedRounded } from '@mui/icons-material';
 
 const items = [
   {
-    icon: <SettingsSuggestRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Adaptable performance',
+    icon: <CloudUploadRounded sx={{ color: 'text.secondary' }} />,
+    title: 'Simple file uploads',
     description:
-      'Our product effortlessly adjusts to your needs, boosting efficiency and simplifying your tasks.',
+      'Upload your files quickly and easily, with support for large file sizes and secure storage.',
   },
   {
-    icon: <ConstructionRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Built to last',
+    icon: <LockRounded sx={{ color: 'text.secondary' }} />,
+    title: 'Secure storage',
     description:
-      'Experience unmatched durability that goes above and beyond with lasting investment.',
+      'Your files are protected with high-level encryption, ensuring that your data remains private and secure.',
   },
   {
-    icon: <ThumbUpAltRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Great user experience',
+    icon: <ShareRounded sx={{ color: 'text.secondary' }} />,
+    title: 'Easy sharing',
     description:
-      'Integrate our product into your routine with an intuitive and easy-to-use interface.',
+      'Effortlessly share files with others using customizable link options and expiration controls.',
   },
   {
-    icon: <AutoFixHighRoundedIcon sx={{ color: 'text.secondary' }} />,
-    title: 'Innovative functionality',
+    icon: <SpeedRounded sx={{ color: 'text.secondary' }} />,
+    title: 'Fast and reliable',
     description:
-      'Stay ahead with features that set new standards, addressing your evolving needs better than the rest.',
+      'Enjoy quick upload and download speeds, with reliable performance for all your storage needs.',
   },
 ];
 

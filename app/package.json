@@ -12,21 +12,22 @@
   "description": "",
   "dependencies": {
     "@types/express": "^5.0.0",
-    "@types/node": "^22.8.2",
-    "cors": "^2.8.5",
-    "express": "^4.21.1",
-    "express-validator": "^7.2.0",
-    "mysql2": "^3.11.3",
-    "tsx": "^4.19.2",
-    "typescript": "^5.6.3",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.8.2",
     "app": "file:app",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-validator": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/bcrypt": "^5.0.2"
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17"
   }
 }

@@ -1,14 +1,29 @@
-import * as React from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import { columns, rows } from '../internals/data/gridData';
 
-export default function CustomizedDataGrid() {
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+
+type Props = {
+  rows: readonly any[];
+  columns: GridColDef[];
+  setSelectedRows?: (rows: any[]) => void;
+};
+
+export default function CustomizedDataGrid(props: Props) {
+  const handleSelectionChange = (selectionModel: any) => {
+    // Récupérer les lignes sélectionnées à partir du modèle de sélection
+    const selectedRows = props.rows.filter(row => selectionModel.includes(row.id));
+    
+    // Appeler la fonction setSelectedRows si elle est définie
+    if (props.setSelectedRows) {
+      props.setSelectedRows(selectedRows);
+    }
+  };
+
   return (
     <DataGrid
       autoHeight
       checkboxSelection
-      rows={rows}
-      columns={columns}
+      rows={props.rows}
+      columns={props.columns}
       getRowClassName={(params) =>
         params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
       }
@@ -18,6 +33,7 @@ export default function CustomizedDataGrid() {
       pageSizeOptions={[10, 20, 50]}
       disableColumnResize
       density="compact"
+      onRowSelectionModelChange={handleSelectionChange} // Ajout de l'événement
       slotProps={{
         filterPanel: {
           filterFormProps: {
