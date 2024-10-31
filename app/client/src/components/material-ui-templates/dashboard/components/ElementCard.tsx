@@ -14,6 +14,14 @@ export default function ElementCard(props: { element: Directory | File }) {
 
     const location = useLocation();
 
+    function formatFileSize(bytes: number): string {
+        if (bytes === 0) return '0 octets';
+        const units = ['octets', 'Ko', 'Mo', 'Go', 'To', 'Po', 'Eo'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        const size = (bytes / Math.pow(1024, i)).toFixed(2);
+        return `${size} ${units[i]}`;
+    }
+
     return (
         <Link to={location.pathname + "/" + props.element.nom} style={{ textDecoration: 'none' }}>
             <Box sx={{ position: 'relative', marginBottom: 4 }}>
@@ -71,6 +79,16 @@ export default function ElementCard(props: { element: Directory | File }) {
                                 </Icon>
                             )}
                         </Box>
+
+                        <Stack direction="row" justifyContent="end" alignItems="center"
+                        sx={{position:'relative', top:30}}   
+                        >
+                            <Typography variant="caption">
+                                {
+                                //@ts-ignore
+                                (props.element && props.element.taille_fichier !== undefined) ?formatFileSize(props.element!.taille_fichier) : ''}
+                            </Typography>
+                        </Stack>
                     </CardContent>
                 </Card>
 
