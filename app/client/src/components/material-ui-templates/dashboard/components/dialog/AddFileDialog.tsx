@@ -8,6 +8,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import InputLabel from '@mui/material/InputLabel';
 import { Box, Typography } from '@mui/material';
 import AttachFileIcon from '@mui/icons-material/AttachFile'; // Icône de fichier
+import { Directory } from '../FilesGrid';
+import { useLocation } from 'react-router-dom';
 
 interface AddFileDialogProps {
   open: boolean;
@@ -16,8 +18,12 @@ interface AddFileDialogProps {
 
 export default function AddFileDialog({ open, handleClose }: AddFileDialogProps) {
   const [file, setFile] = React.useState<File | null>(null); // État pour le fichier
+  const[errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const location = useLocation();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     event.preventDefault();
     
     // Logic to handle the file upload goes here
@@ -26,7 +32,48 @@ export default function AddFileDialog({ open, handleClose }: AddFileDialogProps)
       // Vous pouvez également ajouter une logique pour télécharger le fichier ici
     }
 
-    handleClose();
+    const authInfos = localStorage.getItem('authInfos');
+    if (authInfos) {
+      const { token } = JSON.parse(authInfos);
+      console.log(token)
+      const path = location.pathname == "/files" ? null : location.pathname.split('/files/').pop()??null;
+  
+      try {
+        const formData = new FormData();
+        if (file) {
+          formData.append('file', file);
+        }
+        if (path !== null) {
+          formData.append('path', path);
+        }
+
+        console.log(path)
+
+        console.log(formData.get('file'));
+        console.log(formData.get('path'));
+    
+        const response = await fetch('http://localhost:3000/api/file', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+  
+        const result = await response.json();
+        if (response.ok) {
+          // on ferme le dialogue
+          setFile(null); // Réinitialiser le fichier sélectionné
+          handleClose();
+        } else {
+          setErrorMessage(result.message || 'Échec de l\'ajout du dossier.');
+        }
+      } catch (error) {
+        setErrorMessage('Erreur du serveur. Veuillez réessayer plus tard.');
+      }
+    }
+
+    //handleClose(); // Fermer le dialogue
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +98,17 @@ export default function AddFileDialog({ open, handleClose }: AddFileDialogProps)
         <DialogContentText>
           Veuillez sélectionner le fichier à ajouter.
         </DialogContentText>
+
+        {
+          errorMessage && (
+            <Box sx={{ p: 1, bgcolor: 'error.main', borderRadius: 1 }}>
+              <Typography variant="body2"
+              color="error">
+                {errorMessage}
+              </Typography>
+            </Box>
+          )
+        }
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "center", gap: 5, my:2 }}>
             <InputLabel htmlFor="file-upload" sx={{ mt: 2, width: "fit-content" }}>

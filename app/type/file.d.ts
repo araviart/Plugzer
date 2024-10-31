@@ -13,7 +13,7 @@ export interface FileLink {
 
 export interface FileRepositoryI {
   getFiles(userId: number, parentFolderId: number | null): Promise<File[]>;
-  addFile: (file: File) => Promise<void>;
+  addFile: (userId:number, file: Express.Multer.File, path: string | null, parentFolderId: number | null, fileNameInStorage: string) => Promise<void>;
   createLink: (fileLink: FileLink) => Promise<FileLink>;
   deleteFilesInsideFolder: (userId: number, folderId: number) => Promise<void>;
   deleteFile: (userId: number, fileId: number) => Promise<void>;

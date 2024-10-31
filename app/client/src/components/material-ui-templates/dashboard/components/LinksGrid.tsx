@@ -158,7 +158,6 @@ export default function LinksGrid() {
 
             <Copyright sx={{ my: 4 }} />
 
-            <AddFileDialog open={openFileDialog} handleClose={() => setOpenFileDialog(false)} />
             <ExpirationDialog
                 open={openExpirationDialog}
                 handleClose={() => setOpenExpirationDialog(false)}
