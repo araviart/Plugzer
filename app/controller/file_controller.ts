@@ -58,19 +58,13 @@ export async function addFile(app: App, req: Request, res: Response): Promise<vo
             return;
         }
 
-        // Vérification si le chemin est effectivement défini
-        if (typeof path === 'undefined') {
-            console.error("Le champ 'path' est undefined");
-            return res.status(400).json({ message: "Le champ 'path' est requis." });
-        }
-
         try {
             const userId = await verifyTokenAndGetUser(token);
             // Additional processing logic here...
 
             const parentFolderId = path ? await app.repository.folderRepository.getParentFolderIdFromPath(userId, path) : null;
             
-            app.repository.fileRepository.addFile(userId, file, path, parentFolderId, file.filename);
+            app.repository.fileRepository.addFile(userId, file, path??null, parentFolderId);
 
             res.json({ message: "Fichier ajouté avec succès." });
         } catch (error) {

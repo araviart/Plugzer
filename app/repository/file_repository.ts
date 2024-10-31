@@ -34,9 +34,8 @@ export function getFileRepository(database: Pool): FileRepositoryI {
       //@ts-ignore
       return results || null;
     },
-    addFile: async (userId: number,file: Express.Multer.File, path: string|null, parentFolderId: number | null, fileNameInStorage: string) => {
-
-      await database.execute("INSERT INTO storage (utilisateur_id, nom, taille_fichier, dossier_parent_id, path, fileNameInStorage) VALUES (?, ?, ?, ?, ?, ?)", [userId, file.filename, file.size, parentFolderId, path, fileNameInStorage]);
+    addFile: async (userId: number,file: Express.Multer.File, path: string|null, parentFolderId: number | null) => {
+      await database.execute("INSERT INTO storage (utilisateur_id, nom, taille_fichier, dossier_parent_id, path, fileNameInStorage) VALUES (?, ?, ?, ?, ?, ?)", [userId, file.originalname, file.size, parentFolderId, path, file.filename]);
       },
     createLink: async (fileLink: FileLink) => {
       await database.execute("INSERT INTO file_links (file_id, link,) VALUES (?, ?, ?)", [fileLink.file_id, fileLink.link, fileLink.expiration]);
