@@ -10,6 +10,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { register, login, verifyToken } from './controller/auth_controller';
 import { addFolder, getFolders, deleteFolder, renameFolder } from './controller/folder_controller'; 
+import { getUsedStorage } from './controller/user_controller';
 import {deleteFile, addFile} from './controller/file_controller';
 import 'dotenv/config';
 
@@ -45,6 +46,8 @@ server.use(express.static(path.join(__dirname, 'client/dist')));
 const bindApp = (handler: (app: App, req: Request, res: Response) => Promise<void>) => {
     return (req: Request, res: Response) => handler(app, req, res);
 };
+
+server.get('/api/user/storage', bindApp(getUsedStorage))
 
 server.post('/api/auth/register', bindApp(register));
 server.post('/api/auth/login', bindApp(login));
