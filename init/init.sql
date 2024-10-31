@@ -5,13 +5,29 @@ CREATE TABLE utilisateur (
     password VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE dossier (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    utilisateur_id INT NOT NULL,
+    nom VARCHAR(255) NOT NULL,
+    dossier_parent_id INT, -- ID du dossier parent (facultatif)
+    path TEXT,
+    lastOpenedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id),
+    FOREIGN KEY (dossier_parent_id) REFERENCES dossier(id) ON DELETE SET NULL
+);
+
 CREATE TABLE storage (
     id INT AUTO_INCREMENT PRIMARY KEY,
     utilisateur_id INT NOT NULL,
-    nom_fichier VARCHAR(255) NOT NULL,
+    nom VARCHAR(255) NOT NULL,
     taille_fichier INT NOT NULL, -- taille en octets
-    FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id)
+    dossier_parent_id INT, -- ID du dossier parent (facultatif)
+    path TEXT,
+    lastOpenedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id),
+    FOREIGN KEY (dossier_parent_id) REFERENCES dossier(id) ON DELETE SET NULL
 );
+
 DELIMITER //
 
 CREATE FUNCTION peut_ajouter_fichier(utilisateur_id INT, taille_fichier INT) RETURNS BOOLEAN
@@ -27,6 +43,7 @@ BEGIN
 END //
 
 DELIMITER ;
+
 CREATE TABLE lien_fichier (
     id INT AUTO_INCREMENT PRIMARY KEY,
     fichier_id INT NOT NULL,

@@ -3,7 +3,6 @@ import type {} from '@mui/x-date-pickers/themeAugmentation';
 import type {} from '@mui/x-charts/themeAugmentation';
 import type {} from '@mui/x-data-grid/themeAugmentation';
 import type {} from '@mui/x-tree-view/themeAugmentation';
-import { alpha, useTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -18,8 +17,9 @@ import {
   datePickersCustomizations,
   treeViewCustomizations,
 } from './theme/customizations';
-import { useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import FilesGrid from './components/FilesGrid';
+import LinksGrid from './components/LinksGrid';
 
 const xThemeComponents = {
   ...chartsCustomizations,
@@ -30,7 +30,6 @@ const xThemeComponents = {
 
 export default function Dashboard(props: { disableCustomTheme?: boolean }) {
   const location = useLocation();
-  const theme = useTheme();
 
   React.useEffect(() => {
     console.log('location changed', location);
@@ -45,11 +44,8 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
         {/* Main content */}
         <Box
           component="main"
-          sx={(theme) => ({
-            flexGrow: 1,
-            backgroundColor: theme.vars
-              ? `rgba(${theme.vars.palette.background.defaultChannel} / 1)`
-              : alpha(theme.palette.background.default, 1),
+          sx={(_) => ({
+            flexGrow: 1,  
             overflow: 'auto',
           })}
         >
@@ -65,13 +61,16 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
             <Header />
             {
               location.pathname === "/" ? (
-                <MainGrid />
+                <Navigate 
+                  to="/files" 
+                  replace
+                />
               )
               : location.pathname.startsWith("/files") ? (
                 <FilesGrid/>
               )
               : location.pathname === "/links" ? (
-                <></>
+                <LinksGrid/>
               )
               :
               <p>Page non trouvée</p>
