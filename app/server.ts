@@ -10,7 +10,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { register, login, verifyToken } from './controller/auth_controller';
 import { addFolder, getFolders, deleteFolder, renameFolder } from './controller/folder_controller'; 
-import {deleteFile} from './controller/file_controller';
+import {deleteFile, addFile} from './controller/file_controller';
 import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -58,6 +58,8 @@ server.delete('/api/folder/:id', bindApp(deleteFolder));
 server.get('/api/folder', bindApp(getFolders));
 
 server.delete('/api/file/:id', bindApp(deleteFile));
+
+server.post('/api/file', bindApp(addFile));
 
 server.use('/api', routes);
 server.get('*', (req, res) => {

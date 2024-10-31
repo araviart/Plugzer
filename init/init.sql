@@ -23,6 +23,7 @@ CREATE TABLE storage (
     taille_fichier INT NOT NULL, -- taille en octets
     dossier_parent_id INT, -- ID du dossier parent (facultatif)
     path TEXT,
+    fileNameInStorage VARCHAR(255) NOT NULL,
     lastOpenedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id),
     FOREIGN KEY (dossier_parent_id) REFERENCES dossier(id) ON DELETE SET NULL
