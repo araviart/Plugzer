@@ -51,11 +51,57 @@ export function getFolderRepository(database: Pool): FolderRepositoryI {
             return results[0] || null;
         },
         async updateFolder(userId: number, folderId: number, folderName: string): Promise<void> {
-            console.log('normalement ça cherche si ça existe')
-            const [results] = await database.query("UPDATE dossier SET nom = ? WHERE id = ? and utilisateur_id = ?", [folderName, folderId, userId]);
-            //@ts-ignore
-            return results[0] || null;
-        },
+            // Récupérer le dossier actuel et son ancien nom
+           
+            console.log('mise à jour du dossier');
+            console.log('folderId', folderId);
+            console.log('userId', userId);
+            console.log('folderName', folderName);
+
+            const [folderResults]: any = await database.query(
+                "SELECT * FROM dossier WHERE id = ? AND utilisateur_id = ?",
+                [folderId, userId]
+            );
+        
+            console.log('folderResults', folderResults);
+
+            if (!folderResults[0]) {
+                throw new Error("Dossier introuvable.");
+            }
+        
+            const oldFolderName = folderResults[0].nom;
+            const path = folderResults[0].path;
+
+            console.log('oldFolderName', oldFolderName);
+            console.log('path', path);
+        
+            // Mettre à jour le nom du dossier
+            await database.query(
+                "UPDATE dossier SET nom = ? WHERE id = ? AND utilisateur_id = ?",
+                [folderName, folderId, userId]
+            );
+        
+            // Mise à jour de tous les chemins des sous-dossiers
+            const oldPath = path + `/${oldFolderName}`;
+            const newPath = path + `/${folderName}`;
+
+            console.log('oldPath', oldPath);
+            console.log('newPath', newPath);
+        
+            const [subfolderResults]: any = await database.query(
+                "UPDATE dossier SET path = REPLACE(path, ?, ?) WHERE path LIKE ? AND utilisateur_id = ?",
+                [oldPath, newPath, `${oldPath}%`, userId]
+            );
+
+            // on va le faire sur storage aussi
+
+            const [fileResults]: any = await database.query(
+                "UPDATE storage SET path = REPLACE(path, ?, ?) WHERE path LIKE ? AND utilisateur_id = ?",
+                [oldPath, newPath, `${oldPath}%`, userId]
+            );
+
+            console.log('Nom et chemins des sous-dossiers mis à jour avec succès.');
+        },        
         async deleteFolder(userId: number, folderId: number, force:boolean, fileRepository:FileRepositoryI): Promise<void> {
             console.log('normalement ça cherche si ça existe');
         

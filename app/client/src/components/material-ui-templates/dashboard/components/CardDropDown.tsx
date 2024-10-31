@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import { MoreHorizRounded } from '@mui/icons-material';
 import { Directory, File } from './FilesGrid';
 import AreYouSureDialog from './dialog/AreYouSureDialog';
+import AskTextDialog from './dialog/AskTextDialog';
 
 interface Props {
   element: Directory | File;
@@ -16,7 +17,15 @@ interface Props {
 export default function CardDropdown(props: Props) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [askTextDialogOpen, setAskTextDialogOpen] = React.useState(false); // État pour le dialogue AskText
+  const [newName, setNewName] = React.useState(''); // État pour stocker le nouveau nom du dossier
   const open = Boolean(anchorEl);
+
+  const handleCloseTextDialog = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setAskTextDialogOpen(false); // Fermer le dialogue AskText
+  }
 
   const handleCloseConfirm = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
@@ -36,9 +45,10 @@ export default function CardDropdown(props: Props) {
     setAnchorEl(null);
   };
 
+  const isFile = (element: Directory | File): element is File => (element as File).taille_fichier !== undefined;
+
   const deleteElement = async ({force}:{force:boolean}) => {
     const authInfos = localStorage.getItem('authInfos');
-    const isFile = (element: Directory | File): element is File => (element as File).taille_fichier !== undefined;
     if (authInfos) {
       const { token } = JSON.parse(authInfos);
       
@@ -91,6 +101,57 @@ export default function CardDropdown(props: Props) {
     setAnchorEl(null);
   }
 
+  const changeElementName = async (newName: string) => {
+    const authInfos = localStorage.getItem('authInfos');
+    if (authInfos) {
+      const { token } = JSON.parse(authInfos);
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/folder/${props.element.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ folderName: newName }),
+        });
+
+        console.log(response)
+  
+        const result = await response.json();
+        if (response.ok) {
+          console.log(result);
+          props.onChange();
+          // on ferme le dialogue
+          //setFolderName(''); // Réinitialiser le champ de saisie
+          //handleClose();
+        } else {
+          // si c'est unauthorized on demande une confirmation
+          if(response.status == 401){
+            setConfirmOpen(true);
+          }
+         // setErrorMessage(result.message || 'Échec de l\'ajout du dossier.');
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'ajout du dossier:", error);
+       // setErrorMessage('Erreur du serveur. Veuillez réessayer plus tard.');
+      }
+    }
+  }
+
+  const handleEditName = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setNewName(props.element.nom); // Initialiser avec le nom actuel
+    setAskTextDialogOpen(true); // Ouvrir le dialogue AskText
+    setAnchorEl(null); // Fermer le menu
+  };
+
+  const handleTextDialogConfirm = (inputText: string) => {
+    changeElementName(inputText); // Changer le nom avec le texte saisi
+    setAskTextDialogOpen(false); // Fermer le dialogue
+  };
+
   return (
     <React.Fragment
     >
@@ -119,9 +180,19 @@ export default function CardDropdown(props: Props) {
           },
         }}
       >
-        <MenuItem onClick={handleClose}>Afficher le fichier</MenuItem>
-        <MenuItem onClick={handleClose}>Générer un lien de partage</MenuItem>
-        <MenuItem onClick={handleClose}>Voir les liens actif</MenuItem>
+        {
+          isFile(props.element) ? (
+            <>
+              <MenuItem onClick={handleClose}>Afficher le fichier</MenuItem>
+              <MenuItem onClick={handleClose}>Générer un lien de partage</MenuItem>
+              <MenuItem onClick={handleClose}>Voir les liens actif</MenuItem>
+            </>
+          )
+          :
+          (
+            <MenuItem onClick={handleEditName}>Modifier le nom du dossier</MenuItem>
+          )
+        }
         <Divider />
         <MenuItem onClick={handleDelete}>
           <Typography 
@@ -134,6 +205,13 @@ export default function CardDropdown(props: Props) {
         onConfirm={() => deleteElement({force: true})}
         // @ts-ignore
         handleClose={handleCloseConfirm}
+      />
+      <AskTextDialog
+        open={askTextDialogOpen}
+        description="Entrez le nouveau nom du dossier :"
+        onConfirm={handleTextDialogConfirm}
+        // @ts-ignore
+        handleClose={handleCloseTextDialog}
       />
     </React.Fragment>
   );
