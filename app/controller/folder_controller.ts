@@ -62,7 +62,10 @@ export async function deleteFolder(app: App, req: Request, res: Response): Promi
     console.log("token", token);
 
     verifyTokenAndGetUser(token).then( async (userId) =>{
-        await app.repository.folderRepository.deleteFolder(userId, req.params.id as unknown as number, req.body.force as boolean ?? false);
+        const force = req.body.force as boolean ?? false;
+        
+        await app.repository.folderRepository.deleteFolder(userId, req.params.id as unknown as number, force, app.repository.fileRepository);
+
         res.json({ message: "Dossier supprimé avec succès." });
     }).catch((error) => {
         res.status(401).json({ message: error.message });

@@ -9,6 +9,8 @@ CREATE TABLE dossier (
 );
 */
 
+import { FileRepositoryI } from "./file";
+
 export interface FolderI {
     id?: number,
     nom: string,
@@ -21,7 +23,7 @@ export interface FolderI {
 export interface FolderRepositoryI {
     addFolder(userId:number, folderName: string, path: string | null): Promise<void>;
     updateFolder(userId:number,folderId: number, folderName: string): Promise<void>;
-    deleteFolder(userId:number,folderId: number, force:boolean): Promise<void>;
+    deleteFolder(userId:number,folderId: number, force:boolean, fileRepository?: FileRepositoryI): Promise<void>;
     getFolders(userId:number, path: string | null): Promise<FolderI[]>;
     getParentFolderIdFromPath(userId:number, path: string): Promise<number>;
 }
