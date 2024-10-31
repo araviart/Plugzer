@@ -5,7 +5,12 @@ import { Directory, File } from './FilesGrid'
 import CardDropdown from './CardDropDown'
 import { Link, useLocation } from 'react-router-dom'
 
-export default function ElementCard(props: { element: Directory | File }) {
+type Props = {
+    element: Directory | File,
+    onChange: () => void
+}
+
+export default function ElementCard(props: Props) {
     const theme = useTheme()
 
     // Détecter si c'est un fichier ou un dossier
@@ -48,7 +53,9 @@ export default function ElementCard(props: { element: Directory | File }) {
                             <Typography component="h2" variant="subtitle2" noWrap sx={{ maxWidth: '80%' }}>
                                 {props.element.nom}
                             </Typography>
-                            <CardDropdown fileName={props.element.nom} />
+                            <CardDropdown
+                            onChange={props.onChange}
+                            element={props.element} />
                         </Stack>
 
                         {/* Preview ou icône centrée verticalement et légèrement descendue */}

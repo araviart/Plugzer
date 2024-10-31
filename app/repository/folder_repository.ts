@@ -55,12 +55,35 @@ export function getFolderRepository(database: Pool): FolderRepositoryI {
             //@ts-ignore
             return results[0] || null;
         },
-        async deleteFolder(userId: number, folderId: number): Promise<void> {
-            console.log('normalement ça cherche si ça existe')
-            const [results] = await database.query("DELETE FROM dossier WHERE id = ? and utilisateur_id = ?", [folderId, userId]);
-            //@ts-ignore
-            return results[0] || null;
-        },
+        async deleteFolder(userId: number, folderId: number, force:boolean): Promise<void> {
+            console.log('normalement ça cherche si ça existe');
+        
+            // Vérifier si le dossier est le parent d'autres dossiers
+            const [subfolderResults]: any = await database.query(
+                "SELECT * FROM dossier WHERE dossier_parent_id = ?",
+                [folderId]
+            );
+        
+            const subfolderCount = subfolderResults.length;
+        
+            if (subfolderCount > 0 && !force) {
+                throw new Error("Le dossier ne peut pas être supprimé car il contient des sous-dossiers.");
+            }
+        
+            // Si aucun sous-dossier n'est trouvé, procéder à la suppression
+            await database.query(
+                "DELETE FROM dossier WHERE id = ? AND utilisateur_id = ?",
+                [folderId, userId]
+            );
+
+            // on va supprimer tout recursivement les sous dossiers
+
+            subfolderResults.forEach(async (subfolder: any) => {
+                await this.deleteFolder(userId, subfolder.id, true);
+            });
+        
+            console.log('Dossier supprimé avec succès.');
+        },        
         async getFolders(userId: number, path: string | null): Promise<any> {
             console.log('normalement ça cherche si ça existe');
 

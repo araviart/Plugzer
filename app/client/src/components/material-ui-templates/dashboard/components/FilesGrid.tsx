@@ -109,7 +109,9 @@ export default function FilesGrid() {
       <Grid container spacing={2} columns={12} sx={{ mb: 2 }}>
         {data.map((element, index) => (
           <Grid item key={index} xs={12} sm={6} lg={3}>
-            <ElementCard element={element} />
+            <ElementCard 
+            onChange={fetchData}
+            element={element} />
           </Grid>
         ))}
       </Grid>

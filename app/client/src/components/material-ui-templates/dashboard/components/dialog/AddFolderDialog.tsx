@@ -22,8 +22,7 @@ export default function AddFolderDialog({ open, handleClose, onAddFolder }: AddF
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (folderName.trim() === '') return; // Ne rien faire si le nom est vide
-    onAddFolder(folderName); // Appeler la fonction pour ajouter le dossier
-
+   
     const authInfos = localStorage.getItem('authInfos');
     if (authInfos) {
       const { token } = JSON.parse(authInfos);
@@ -46,6 +45,7 @@ export default function AddFolderDialog({ open, handleClose, onAddFolder }: AddF
           // on ferme le dialogue
           setFolderName(''); // Réinitialiser le champ de saisie
           handleClose();
+          onAddFolder(folderName); // Appeler la fonction pour ajouter le dossier
         } else {
           setErrorMessage(result.message || 'Échec de l\'ajout du dossier.');
         }
