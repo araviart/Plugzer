@@ -15,6 +15,7 @@ export interface FileRepositoryI {
   getFiles(userId: number, parentFolderId: number | null): Promise<File[]>;
   addFile: (file: File) => Promise<void>;
   createLink: (fileLink: FileLink) => Promise<FileLink>;
+  deleteFilesInsideFolder: (userId: number, folderId: number) => Promise<void>;
 }
 
 

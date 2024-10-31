@@ -1,5 +1,6 @@
 import { Pool } from "mysql2/promise";
 import { FolderRepositoryI } from "../type/folder";
+import { FileRepositoryI } from "../type/file";
 /* 
        CREATE TABLE `dossier` (
            `id` int NOT NULL AUTO_INCREMENT,
@@ -55,7 +56,7 @@ export function getFolderRepository(database: Pool): FolderRepositoryI {
             //@ts-ignore
             return results[0] || null;
         },
-        async deleteFolder(userId: number, folderId: number, force:boolean): Promise<void> {
+        async deleteFolder(userId: number, folderId: number, force:boolean, fileRepository:FileRepositoryI): Promise<void> {
             console.log('normalement ça cherche si ça existe');
         
             // Vérifier si le dossier est le parent d'autres dossiers
@@ -69,13 +70,37 @@ export function getFolderRepository(database: Pool): FolderRepositoryI {
             if (subfolderCount > 0 && !force) {
                 throw new Error("Le dossier ne peut pas être supprimé car il contient des sous-dossiers.");
             }
+
+            console.log('subfolderResults', subfolderResults);
+
+            const [fileResults]: any = await database.query(
+                "SELECT * FROM storage WHERE dossier_parent_id = ?",
+                [folderId]
+            );
+
+            console.log(fileResults);
+
+
+            const fileCount = fileResults.length;
+
+            console.log('fileCount', fileCount);
+
+            if (fileCount > 0 && !force) {
+                console.log('Le dossier ne peut pas être supprimé car il contient des fichiers.');
+                throw new Error("Le dossier ne peut pas être supprimé car il contient des fichiers.");
+            }   
+
+            // on va supprimer tout les fichiers du dossier 
+
+            await fileRepository.deleteFilesInsideFolder(userId, folderId);
+
         
             // Si aucun sous-dossier n'est trouvé, procéder à la suppression
             await database.query(
                 "DELETE FROM dossier WHERE id = ? AND utilisateur_id = ?",
                 [folderId, userId]
             );
-
+            
             // on va supprimer tout recursivement les sous dossiers
 
             subfolderResults.forEach(async (subfolder: any) => {
