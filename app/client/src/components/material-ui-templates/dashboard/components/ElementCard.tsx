@@ -10,6 +10,14 @@ type Props = {
     onChange: () => void
 }
 
+export function formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 octets';
+    const units = ['octets', 'Ko', 'Mo', 'Go', 'To', 'Po', 'Eo'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    const size = (bytes / Math.pow(1024, i)).toFixed(2);
+    return `${size} ${units[i]}`;
+}
+
 export default function ElementCard(props: Props) {
     const theme = useTheme()
 
@@ -18,14 +26,6 @@ export default function ElementCard(props: Props) {
     const hasPreview = isFile && (props.element as File).previewImage
 
     const location = useLocation();
-
-    function formatFileSize(bytes: number): string {
-        if (bytes === 0) return '0 octets';
-        const units = ['octets', 'Ko', 'Mo', 'Go', 'To', 'Po', 'Eo'];
-        const i = Math.floor(Math.log(bytes) / Math.log(1024));
-        const size = (bytes / Math.pow(1024, i)).toFixed(2);
-        return `${size} ${units[i]}`;
-    }
 
     return (
         <Link to={location.pathname + "/" + props.element.nom} style={{ textDecoration: 'none' }}>
