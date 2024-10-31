@@ -17,7 +17,7 @@ export function getFileRepository(database: Pool): FileRepositoryI {
       
       const [results] = await database.query(query, parentFolderId === null ? [userId] : [userId, parentFolderId]);
   
-      console.log('results', results);
+  //    console.log('results', results);
 
       //@ts-ignore
       return results || null;

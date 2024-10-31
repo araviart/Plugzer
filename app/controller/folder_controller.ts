@@ -33,11 +33,11 @@ export async function addFolder(app: App, req: Request, res: Response): Promise<
 export async function getFolders(app: App, req: Request, res: Response): Promise<void> {
     const token = req.headers.authorization?.split(" ")[1];
     console.log("token", token);
-    console.log("req.params.path", req.params.path??null);
+    console.log("req.params.path", req.query.path??null);
 
     verifyTokenAndGetUser(token).then( async (userId) =>{
-        const folders = await app.repository.folderRepository.getFolders(userId, req.params.path??null);
-        const parentFolderId = req.params.path ? await app.repository.folderRepository.getParentFolderIdFromPath(userId, req.params.path) : null;
+        const folders = await app.repository.folderRepository.getFolders(userId, req.query.path as string ?? null);
+        const parentFolderId = req.query.path ? await app.repository.folderRepository.getParentFolderIdFromPath(userId, req.query.path as string) : null;
         const files = await app.repository.fileRepository.getFiles(userId, parentFolderId);
          // Combine folders and files into a single array and sort by lastOpenedAt
          const elements = [...folders, ...files].sort((a, b) => {
@@ -46,9 +46,9 @@ export async function getFolders(app: App, req: Request, res: Response): Promise
             return dateB - dateA; // Tri décroissant (plus récent en premier)
         });
 
-        console.log("elements")
+       // console.log("elements")
 
-        console.log(elements);
+        // console.log(elements);
 
         res.json(elements);
     }).catch((error) => {

@@ -1,25 +1,43 @@
 import { Pool } from "mysql2/promise";
 import { FolderRepositoryI } from "../type/folder";
- /* 
-        CREATE TABLE `dossier` (
-            `id` int NOT NULL AUTO_INCREMENT,
-            `nom` varchar(255) NOT NULL,
-            `dossier_parent_id` int DEFAULT NULL,
-            path varchar(255) NOT NULL,
-            PRIMARY KEY (`id`),
-            KEY `dossier_parent_id` (`dossier_parent_id`),
-            CONSTRAINT `dossier_ibfk_1` FOREIGN KEY (`dossier_parent_id`) REFERENCES `dossier` (`id`) ON DELETE SET NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/* 
+       CREATE TABLE `dossier` (
+           `id` int NOT NULL AUTO_INCREMENT,
+           `nom` varchar(255) NOT NULL,
+           `dossier_parent_id` int DEFAULT NULL,
+           path varchar(255) NOT NULL,
+           PRIMARY KEY (`id`),
+           KEY `dossier_parent_id` (`dossier_parent_id`),
+           CONSTRAINT `dossier_ibfk_1` FOREIGN KEY (`dossier_parent_id`) REFERENCES `dossier` (`id`) ON DELETE SET NULL
+           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-        */
+       */
 
-export function getFolderRepository(database: Pool) : FolderRepositoryI {
+export function getFolderRepository(database: Pool): FolderRepositoryI {
     return {
         async getParentFolderIdFromPath(userId: number, path: string): Promise<number> {
-            console.log('normalement ça cherche si ça existe')
-            const [results] = await database.query("SELECT id FROM dossier WHERE path = ? and utilisateur_id = ?", [path, userId]);
+            console.log('getParentFolderIdFromPath');
+            console.log(path);
+            console.log(userId)
+
+            const isPathRoot = path === '/' || !path.includes('/');
+            console.log(isPathRoot)
+            const currentFolderName = !isPathRoot ? path.split('/').pop() : path;
+            console.log(currentFolderName)
+            const finalPath = !isPathRoot ? path.split('/').slice(0, -1).join('/') : null;
+
+            const query = isPathRoot
+                ? "SELECT id FROM dossier WHERE nom = ? AND path IS NULL AND utilisateur_id = ?"
+                : "SELECT id FROM dossier WHERE nom = ? AND path = ? AND utilisateur_id = ?";
+
+            const params = isPathRoot ? [currentFolderName, userId] : [currentFolderName, finalPath, userId];
+
+            const [results] = await database.query(query, params);
+
+            console.log("results", results)
+
             //@ts-ignore
-            return results[0] || null;
+            return results[0] ? results[0].id : null;
         },
         async addFolder(userId: number, folderName: string, path: string | null): Promise<void> {
             console.log('normalement ça cherche si ça existe')
@@ -45,21 +63,23 @@ export function getFolderRepository(database: Pool) : FolderRepositoryI {
         },
         async getFolders(userId: number, path: string | null): Promise<any> {
             console.log('normalement ça cherche si ça existe');
-            
+
+            console.log("get folders path", path)
+
             const parentFolderId = path ? await this.getParentFolderIdFromPath(userId, path) : null;
-            
+
             console.log('parentFolderId', parentFolderId);
             console.log('userId', userId);
-        
+
             const query = parentFolderId === null
                 ? "SELECT * FROM dossier WHERE utilisateur_id = ? AND dossier_parent_id IS NULL"
                 : "SELECT * FROM dossier WHERE utilisateur_id = ? AND dossier_parent_id = ?";
-            
+
             const [results] = await database.query(query, parentFolderId === null ? [userId] : [userId, parentFolderId]);
-        
+
             //@ts-ignore
             return results || null;
         }
-        
+
     };
 }
