@@ -39,8 +39,10 @@ async function compressFileOrFolder(req: Request, res: Response, next: Function)
 
         output.on('close', () => {
             console.log(`Compression complete, ${archive.pointer()} total bytes`);
-            req.file.path = zipFilePath; // Update path to the compressed file
-            req.file.filename = path.basename(zipFilePath); // Update filename to the ZIP file
+            if (req.file) {
+                req.file.path = zipFilePath; // Update path to the compressed file
+                req.file.filename = path.basename(zipFilePath); // Update filename to the ZIP file
+            }
             next();
         });
 
