@@ -5,6 +5,31 @@ import { App } from "../type/app";
 
 const JWT_SECRET = "secretkeyg";
 
+export async function verifyTokenAndGetUser(token: string | undefined) : Promise<number>{
+        console.log("token", token);
+        if (!token) {
+            throw new Error("Token d'authentification manquant. Veuillez vous connecter.");
+        }
+    
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
+           
+            console.log("decoded", decoded);
+           
+            const userId = decoded.id; // Extraire l'ID de l'utilisateur du token
+    
+            console.log("userId", userId);
+    
+            // Vous pouvez maintenant utiliser userId pour effectuer des opérations spécifiques à l'utilisateur
+    
+            return userId;
+
+            throw new Error("Token d'authentification valide.", userId);
+        } catch (error) {
+            throw new Error("Token d'authentification invalide. Veuillez vous connecter.");
+        }
+}
+
 export async function verifyToken(app: App, req: Request, res: Response): Promise<void> {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {

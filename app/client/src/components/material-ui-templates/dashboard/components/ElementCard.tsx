@@ -9,13 +9,13 @@ export default function ElementCard(props: { element: Directory | File }) {
     const theme = useTheme()
 
     // Détecter si c'est un fichier ou un dossier
-    const isFile = 'id' in props.element
+    const isFile = 'taille_fichier' in props.element
     const hasPreview = isFile && (props.element as File).previewImage
 
     const location = useLocation();
 
     return (
-        <Link to={location.pathname + "/" + props.element.name} style={{ textDecoration: 'none' }}>
+        <Link to={location.pathname + "/" + props.element.nom} style={{ textDecoration: 'none' }}>
             <Box sx={{ position: 'relative', marginBottom: 4 }}>
                 <Card
                     variant={isFile ? 'outlined' : 'elevation'}
@@ -38,9 +38,9 @@ export default function ElementCard(props: { element: Directory | File }) {
                         {/* Nom avec points de suspension et ... à droite */}
                         <Stack direction="row" justifyContent="space-between" alignItems="center">
                             <Typography component="h2" variant="subtitle2" noWrap sx={{ maxWidth: '80%' }}>
-                                {props.element.name}
+                                {props.element.nom}
                             </Typography>
-                            <CardDropdown fileName={props.element.name} />
+                            <CardDropdown fileName={props.element.nom} />
                         </Stack>
 
                         {/* Preview ou icône centrée verticalement et légèrement descendue */}
@@ -76,8 +76,9 @@ export default function ElementCard(props: { element: Directory | File }) {
 
                 {/* Date de dernière modification en bas de la carte avec espace */}
                 <Typography variant="caption" sx={{ color: 'text.secondary', position: 'absolute', bottom: -25 }}>
-                    Dernière modification: {props.element.lastOpenedAt?.toLocaleDateString()}
+                    Dernière modification: {props.element.lastOpenedAt ? new Date(props.element.lastOpenedAt).toLocaleDateString() : 'N/A'}
                 </Typography>
+
             </Box>
         </Link>
     )
