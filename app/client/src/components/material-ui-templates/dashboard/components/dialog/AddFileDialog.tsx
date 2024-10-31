@@ -14,9 +14,10 @@ import { useLocation } from 'react-router-dom';
 interface AddFileDialogProps {
   open: boolean;
   handleClose: () => void;
+  onChange: () => void;
 }
 
-export default function AddFileDialog({ open, handleClose }: AddFileDialogProps) {
+export default function AddFileDialog({ open, handleClose, onChange }: AddFileDialogProps) {
   const [file, setFile] = React.useState<File | null>(null); // État pour le fichier
   const[errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const location = useLocation();
@@ -65,6 +66,7 @@ export default function AddFileDialog({ open, handleClose }: AddFileDialogProps)
           // on ferme le dialogue
           setFile(null); // Réinitialiser le fichier sélectionné
           handleClose();
+          onChange();
         } else {
           setErrorMessage(result.message || 'Échec de l\'ajout du dossier.');
         }
@@ -101,12 +103,10 @@ export default function AddFileDialog({ open, handleClose }: AddFileDialogProps)
 
         {
           errorMessage && (
-            <Box sx={{ p: 1, bgcolor: 'error.main', borderRadius: 1 }}>
               <Typography variant="body2"
               color="error">
                 {errorMessage}
               </Typography>
-            </Box>
           )
         }
 

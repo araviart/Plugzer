@@ -119,7 +119,9 @@ export default function FilesGrid() {
       <Copyright sx={{ my: 4 }} />
 
       {/* Ajouter le Dialog pour les fichiers */}
-      <AddFileDialog open={openFileDialog} handleClose={() => setOpenFileDialog(false)} />
+      <AddFileDialog 
+      onChange={fetchData}
+      open={openFileDialog} handleClose={() => setOpenFileDialog(false)} />
       {/* Ajouter le Dialog pour les dossiers */}
       <AddFolderDialog open={openFolderDialog} handleClose={() => setOpenFolderDialog(false)} onAddFolder={fetchData} />
     </Box>
