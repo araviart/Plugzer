@@ -8,4 +8,5 @@ export interface UserI {
 export interface UserRepositoryI {
     findUserByEmail(email: string): Promise<UserI | null>;
     insertUser(user: UserI): Promise<void>;
+    getUsedStorage(userId: number): Promise<{ totalStorageUsed: number; maxStorage: number }>;
 }

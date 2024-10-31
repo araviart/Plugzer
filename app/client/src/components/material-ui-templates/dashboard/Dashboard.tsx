@@ -1,8 +1,8 @@
 import * as React from 'react';
-import type {} from '@mui/x-date-pickers/themeAugmentation';
-import type {} from '@mui/x-charts/themeAugmentation';
-import type {} from '@mui/x-data-grid/themeAugmentation';
-import type {} from '@mui/x-tree-view/themeAugmentation';
+import type { } from '@mui/x-date-pickers/themeAugmentation';
+import type { } from '@mui/x-charts/themeAugmentation';
+import type { } from '@mui/x-data-grid/themeAugmentation';
+import type { } from '@mui/x-tree-view/themeAugmentation';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -20,6 +20,7 @@ import {
 import { Navigate, useLocation } from 'react-router-dom';
 import FilesGrid from './components/FilesGrid';
 import LinksGrid from './components/LinksGrid';
+import { StorageProvider } from './context/StorageContext';
 
 const xThemeComponents = {
   ...chartsCustomizations,
@@ -36,48 +37,50 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
   }, [location])
 
   return (
-    <AppTheme {...props} themeComponents={xThemeComponents}>
-      <CssBaseline enableColorScheme />
-      <Box sx={{ display: 'flex', width:"100vw", minHeight:"100vh" }}>
-        <SideMenu />
-        <AppNavbar />
-        {/* Main content */}
-        <Box
-          component="main"
-          sx={(_) => ({
-            flexGrow: 1,  
-            overflow: 'auto',
-          })}
-        >
-          <Stack
-            spacing={2}
-            sx={{
-              alignItems: 'center',
-              mx: 3,
-              pb: 5,
-              mt: { xs: 8, md: 0 },
-            }}
+    <StorageProvider>
+      <AppTheme {...props} themeComponents={xThemeComponents}>
+        <CssBaseline enableColorScheme />
+        <Box sx={{ display: 'flex', width: "100vw", minHeight: "100vh" }}>
+          <SideMenu />
+          <AppNavbar />
+          {/* Main content */}
+          <Box
+            component="main"
+            sx={(_) => ({
+              flexGrow: 1,
+              overflow: 'auto',
+            })}
           >
-            <Header />
-            {
-              location.pathname === "/" ? (
-                <Navigate 
-                  to="/files" 
-                  replace
-                />
-              )
-              : location.pathname.startsWith("/files") ? (
-                <FilesGrid/>
-              )
-              : location.pathname === "/links" ? (
-                <LinksGrid/>
-              )
-              :
-              <p>Page non trouvée</p>
-            }
-          </Stack>
+            <Stack
+              spacing={2}
+              sx={{
+                alignItems: 'center',
+                mx: 3,
+                pb: 5,
+                mt: { xs: 8, md: 0 },
+              }}
+            >
+              <Header />
+              {
+                location.pathname === "/" ? (
+                  <Navigate
+                    to="/files"
+                    replace
+                  />
+                )
+                  : location.pathname.startsWith("/files") ? (
+                    <FilesGrid />
+                  )
+                    : location.pathname === "/links" ? (
+                      <LinksGrid />
+                    )
+                      :
+                      <p>Page non trouvée</p>
+              }
+            </Stack>
+          </Box>
         </Box>
-      </Box>
-    </AppTheme>
+      </AppTheme>
+    </StorageProvider>
   );
 }

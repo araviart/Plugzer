@@ -8,8 +8,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import InputLabel from '@mui/material/InputLabel';
 import { Box, Typography } from '@mui/material';
 import AttachFileIcon from '@mui/icons-material/AttachFile'; // Icône de fichier
-import { Directory } from '../FilesGrid';
 import { useLocation } from 'react-router-dom';
+import { useStorage } from '../../context/StorageContext';
 
 interface AddFileDialogProps {
   open: boolean;
@@ -21,6 +21,7 @@ export default function AddFileDialog({ open, handleClose, onChange }: AddFileDi
   const [file, setFile] = React.useState<File | null>(null); // État pour le fichier
   const[errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const location = useLocation();
+  const { setStorageUsageNeedsRefresh } = useStorage();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -67,6 +68,7 @@ export default function AddFileDialog({ open, handleClose, onChange }: AddFileDi
           setFile(null); // Réinitialiser le fichier sélectionné
           handleClose();
           onChange();
+          setStorageUsageNeedsRefresh(true);
         } else {
           setErrorMessage(result.message || 'Échec de l\'ajout du dossier.');
         }
