@@ -70,3 +70,16 @@ export async function deleteFolder(app: App, req: Request, res: Response): Promi
         return;
     });
 }
+
+export async function renameFolder(app: App, req: Request, res: Response): Promise<void> {
+    const token = req.headers.authorization?.split(" ")[1];
+    console.log("token", token);
+
+    verifyTokenAndGetUser(token).then( async (userId) =>{
+        await app.repository.folderRepository.updateFolder(userId, req.params.id as unknown as number, req.body.folderName as string);
+        res.json({ message: "Dossier renommé avec succès." });
+    }).catch((error) => {
+        res.status(401).json({ message: error.message });
+        return;
+    });
+}
