@@ -6,6 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import OutlinedInput from '@mui/material/OutlinedInput';
+import { useLocation } from 'react-router-dom';
 
 interface AddFolderDialogProps {
   open: boolean;
@@ -15,13 +16,45 @@ interface AddFolderDialogProps {
 
 export default function AddFolderDialog({ open, handleClose, onAddFolder }: AddFolderDialogProps) {
   const [folderName, setFolderName] = React.useState('');
+  const [errorMessage, setErrorMessage] = React.useState<string>("");
+  const location = useLocation();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (folderName.trim() === '') return; // Ne rien faire si le nom est vide
     onAddFolder(folderName); // Appeler la fonction pour ajouter le dossier
-    setFolderName(''); // Réinitialiser le champ de saisie
-    handleClose(); // Fermer le dialogue
+
+    const authInfos = localStorage.getItem('authInfos');
+    if (authInfos) {
+      const { token } = JSON.parse(authInfos);
+      console.log(token)
+      const path = location.pathname == "/files" ? null : location.pathname.split('/files/').pop()??null;
+  
+      try {
+        const response = await fetch('http://localhost:3000/api/folder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            folderName: folderName,
+            // le parent c'est le dernier element après le / dans l'url
+            path,
+          }),
+        });
+  
+        const result = await response.json();
+        if (response.ok) {
+          // on ferme le dialogue
+          setFolderName(''); // Réinitialiser le champ de saisie
+          handleClose();
+        } else {
+          setErrorMessage(result.message || 'Échec de l\'ajout du dossier.');
+        }
+      } catch (error) {
+        setErrorMessage('Erreur du serveur. Veuillez réessayer plus tard.');
+      }
+    }
+
+    //handleClose(); // Fermer le dialogue
   };
 
   return (
@@ -41,6 +74,14 @@ export default function AddFolderDialog({ open, handleClose, onAddFolder }: AddF
         <DialogContentText>
           Veuillez entrer le nom du dossier que vous souhaitez ajouter.
         </DialogContentText>
+
+        {
+          errorMessage && (
+            <DialogContentText sx={{ color: 'error' }}>
+              {errorMessage}
+            </DialogContentText>
+          )
+        }
         
         <OutlinedInput
           autoFocus

@@ -2,6 +2,7 @@ export interface File {
   user_id?: number,
   filename: string,
   filesize: number,
+  lastOpenedAt: Date,
 }
 
 export interface FileLink {
@@ -11,7 +12,7 @@ export interface FileLink {
  }
 
 export interface FileRepositoryI {
-  getFiles(user: UserI): Promise<File[]>;
+  getFiles(userId: number, parentFolderId: number | null): Promise<File[]>;
   addFile: (file: File) => Promise<void>;
   createLink: (fileLink: FileLink) => Promise<FileLink>;
 }
