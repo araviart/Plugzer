@@ -24,14 +24,29 @@ export interface Directory {
     lastOpenedAt: Date;
 }
 
+// Interface pour un lien de fichier
+export interface FileLink {
+    id: number;
+    fileName: string;
+    status: 'active' | 'inactive';  // Updated to match database enum
+    visites: number;
+    fileLink: string;
+    expirationDate: string;
+}
+
 // Fonction pour rendre le statut d'un fichier
-function renderStatus(status: 'Online' | 'Offline') {
+function renderStatus(status: 'active' | 'inactive') {
     const colors: { [index: string]: 'success' | 'default' } = {
-        Online: 'success',
-        Offline: 'default',
+        active: 'success',
+        inactive: 'default',
     };
 
-    return <Chip label={status} color={colors[status]} size="small" />;
+    const labels: { [index: string]: string } = {
+        active: 'Actif',
+        inactive: 'Inactif',
+    };
+
+    return <Chip label={labels[status]} color={colors[status]} size="small" />;
 }
 
 // Colonnes du tableau
@@ -70,32 +85,89 @@ const columns: GridColDef[] = [
     },
 ];
 
-// Données de test pour les fichiers
-const initialRows: GridRowsProp = [
-    { id: 1, fileName: 'Fichier 1', status: 'Online', visites: 10, fileLink: 'https://example.com/file1', expirationDate: '2023-12-31' },
-    { id: 2, fileName: 'Fichier 2', status: 'Offline', visites: 5, fileLink: 'https://example.com/file2', expirationDate: '2023-12-31' },
-    { id: 3, fileName: 'Fichier 3', status: 'Online', visites: 15, fileLink: 'https://example.com/file3', expirationDate: '2023-12-31' },
-    { id: 4, fileName: 'Fichier 4', status: 'Offline', visites: 20, fileLink: 'https://example.com/file4', expirationDate: '2023-12-31' },
-    { id: 5, fileName: 'Fichier 5', status: 'Online', visites: 25, fileLink: 'https://example.com/file5', expirationDate: '2023-12-31' },
-];
-
 export default function LinksGrid() {
     const [openFileDialog, setOpenFileDialog] = React.useState(false);
     const [openExpirationDialog, setOpenExpirationDialog] = React.useState(false); // Etat pour ExpirationDialog
     const [selectedLinks, setSelectedLinks] = React.useState<string[]>([]);
-    const [rows, setRows] = React.useState(initialRows); // État pour les ligne
+    const [rows, setRows] = React.useState<FileLink[]>([]); // État pour les lignes
+    const [isUpdating, setIsUpdating] = React.useState(false);
     const theme = useTheme();
 
-    const handleMakeUnavailable = () => {
-        const updatedRows = rows.map((row) => {
-            if (selectedLinks.includes(row.id.toString())) {
-                return { ...row, status: 'Offline' }; // Mettre à jour le statut à 'Offline'
+    React.useEffect(() => {
+        const fetchLinks = async () => {
+            const authInfos = localStorage.getItem('authInfos');
+            if (authInfos) {
+                const { token } = JSON.parse(authInfos);
+                try {
+                    const response = await fetch('http://localhost:3000/api/links', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    // Transform the data to match FileLink interface
+                    const transformedData = data.map((item: any) => ({
+                        id: item.id,
+                        fileName: `File ${item.fichier_id}`, // You might want to fetch actual file names
+                        status: item.status,
+                        visites: 0, // Add if you have this data
+                        fileLink: item.lien,
+                        expirationDate: new Date(item.date_expiration).toLocaleDateString()
+                    }));
+                    setRows(transformedData);
+                } catch (error) {
+                    console.error('Erreur lors de la récupération des liens:', error);
+                }
             }
-            return row;
-        });
-        setRows(updatedRows);
-        setSelectedLinks([]); // Réinitialiser les liens sélectionnés après l'action
-    };
+        };
+
+        fetchLinks();
+    }, []);
+
+    const handleMakeUnavailable = async () => {
+        const authInfos = localStorage.getItem('authInfos');
+        if (!authInfos || isUpdating) return;
+        const { token } = JSON.parse(authInfos);
+        setIsUpdating(true);
+        console.log("selectedLinks", selectedLinks);
+        try {
+            const response = await fetch('http://localhost:3000/api/links', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ids: selectedLinks,
+                    updates: { status: 'inactive' }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update links');
+            }
+            const updatedRows = rows.map(row => 
+                selectedLinks.includes(row.id.toString())
+                    ? { ...row, status: 'inactive' }
+                    : row
+            );
+            
+            setRows(updatedRows);
+            setSelectedLinks([]);
+        } catch (error) {
+            console.error('Error updating links:', error);
+        } finally {
+            setIsUpdating(false);
+        }
+    }
+
 
     const handleExtendExpiration = () => {
         setOpenExpirationDialog(true); // Ouvrir le dialogue de sélection de date d'expiration
@@ -110,9 +182,9 @@ export default function LinksGrid() {
                 return row;
             });
             setRows(updatedRows);
-            setSelectedLinks([]); // Réinitialiser les liens sélectionnés après l'action
+            setSelectedLinks([]); 
         }
-        setOpenExpirationDialog(false); // Fermer le dialogue
+        setOpenExpirationDialog(false); 
     };
 
     return (
@@ -155,9 +227,7 @@ export default function LinksGrid() {
                     setSelectedRows={setSelectedLinks}
                 />
             </Grid2>
-
             <Copyright sx={{ my: 4 }} />
-
             <AddFileDialog open={openFileDialog} handleClose={() => setOpenFileDialog(false)} />
             <ExpirationDialog
                 open={openExpirationDialog}
