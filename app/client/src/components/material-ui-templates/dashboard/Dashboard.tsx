@@ -17,7 +17,7 @@ import {
   datePickersCustomizations,
   treeViewCustomizations,
 } from './theme/customizations';
-import { useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import FilesGrid from './components/FilesGrid';
 import LinksGrid from './components/LinksGrid';
 
@@ -61,7 +61,10 @@ export default function Dashboard(props: { disableCustomTheme?: boolean }) {
             <Header />
             {
               location.pathname === "/" ? (
-                <MainGrid />
+                <Navigate 
+                  to="/files" 
+                  replace
+                />
               )
               : location.pathname.startsWith("/files") ? (
                 <FilesGrid/>

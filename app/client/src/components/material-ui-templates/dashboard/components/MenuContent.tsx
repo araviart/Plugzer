@@ -13,15 +13,15 @@ import LinkRoundedIcon from '@mui/icons-material/LinkRounded'; // New import
 import { Link, useLocation } from 'react-router-dom';
 
 const mainListItems = [
-  { text: 'Accueil', icon: <HomeRoundedIcon />, to: '/' },
+ // { text: 'Accueil', icon: <HomeRoundedIcon />, to: '/' },
   { text: 'Fichiers', icon: <FolderRoundedIcon />, to:'/files' }, // Updated icon
   { text: 'Liens', icon: <LinkRoundedIcon />, to:'/links' }, // Updated icon
 ];
 
 const secondaryListItems = [
-  { text: 'Settings', icon: <SettingsRoundedIcon /> },
+  //{ text: 'Settings', icon: <SettingsRoundedIcon /> },
   { text: 'About', icon: <InfoRoundedIcon /> },
-  { text: 'Feedback', icon: <HelpRoundedIcon /> },
+  //{ text: 'Feedback', icon: <HelpRoundedIcon /> },
 ];
 
 export default function MenuContent() {
