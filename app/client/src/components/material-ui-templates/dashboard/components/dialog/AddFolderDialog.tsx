@@ -22,6 +22,13 @@ export default function AddFolderDialog({ open, handleClose, onAddFolder }: AddF
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (folderName.trim() === '') return; // Ne rien faire si le nom est vide
+
+    // ne rien faire si le nom contient des caractères spéciaux ou des espaces ou des _
+
+    if (folderName.match(/[!@#$%^&*(),.?":{}|<>]/g) || folderName.match(/ /g) || folderName.match(/_/g)) {
+      setErrorMessage('Le nom du dossier ne doit pas contenir de caractères spéciaux, d\'espaces ou de tirets bas.');
+      return;
+    }
    
     const authInfos = localStorage.getItem('authInfos');
     if (authInfos) {
@@ -77,7 +84,9 @@ export default function AddFolderDialog({ open, handleClose, onAddFolder }: AddF
 
         {
           errorMessage && (
-            <DialogContentText sx={{ color: 'error' }}>
+            <DialogContentText
+            color='error'
+            sx={{ color: 'error' }}>
               {errorMessage}
             </DialogContentText>
           )

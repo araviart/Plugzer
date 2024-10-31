@@ -8,6 +8,8 @@ import { MoreHorizRounded } from '@mui/icons-material';
 import { Directory, File } from './FilesGrid';
 import AreYouSureDialog from './dialog/AreYouSureDialog';
 import AskTextDialog from './dialog/AskTextDialog';
+import GenerateLinkDialog from './dialog/GenerateLinkDialog';
+import LinksDialog from './dialog/LinksDialog';
 
 interface Props {
   element: Directory | File;
@@ -18,8 +20,22 @@ export default function CardDropdown(props: Props) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [askTextDialogOpen, setAskTextDialogOpen] = React.useState(false); // État pour le dialogue AskText
+  const [generateLinkDialogOpen, setGenerateLinkDialogOpen] = React.useState(false); // État pour le dialogue de génération de lien
+  const [LinksDialogOpen, setLinksDialogOpen] = React.useState(false); // État pour le dialogue de génération de lien
   const [newName, setNewName] = React.useState(''); // État pour stocker le nouveau nom du dossier
   const open = Boolean(anchorEl);
+
+  const handleCloseLinkDialogOpen = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setLinksDialogOpen(false); // Fermer le dialogue de génération de lien
+  }
+
+  const handleCloseGenerateLinkDialog = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setGenerateLinkDialogOpen(false); // Fermer le dialogue de génération de lien
+  }
 
   const handleCloseTextDialog = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
@@ -152,6 +168,20 @@ export default function CardDropdown(props: Props) {
     setAskTextDialogOpen(false); // Fermer le dialogue
   };
 
+  const handleGenerateLink = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setGenerateLinkDialogOpen(true); // Ouvrir le dialogue de génération de lien
+    setAnchorEl(null); // Fermer le menu
+  }
+
+  const handleShowActiveLinks = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setLinksDialogOpen(true); // Ouvrir le dialogue de génération de lien
+    setAnchorEl(null); // Fermer le menu
+  }
+
   return (
     <React.Fragment
     >
@@ -184,8 +214,8 @@ export default function CardDropdown(props: Props) {
           isFile(props.element) ? (
             <>
               <MenuItem onClick={handleClose}>Afficher le fichier</MenuItem>
-              <MenuItem onClick={handleClose}>Générer un lien de partage</MenuItem>
-              <MenuItem onClick={handleClose}>Voir les liens actif</MenuItem>
+              <MenuItem onClick={handleGenerateLink}>Générer un lien de partage</MenuItem>
+              <MenuItem onClick={handleShowActiveLinks}>Voir les liens actif</MenuItem>
             </>
           )
           :
@@ -212,6 +242,17 @@ export default function CardDropdown(props: Props) {
         onConfirm={handleTextDialogConfirm}
         // @ts-ignore
         handleClose={handleCloseTextDialog}
+      />
+      <GenerateLinkDialog
+        open={generateLinkDialogOpen}
+        description="Voici le lien de partage généré :"
+        // @ts-ignore
+        handleClose={handleCloseGenerateLinkDialog}
+      />
+      <LinksDialog
+        open={LinksDialogOpen}
+        // @ts-ignore
+        handleClose={handleCloseLinkDialogOpen}
       />
     </React.Fragment>
   );
