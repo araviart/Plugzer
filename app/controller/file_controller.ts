@@ -144,6 +144,8 @@ export async function getFile(app: App, req: Request, res: Response): Promise<vo
 
         const fileLink = await app.repository.fileRepository.getFileLinkFromToken(fileId, token);
 
+        console.log("fileLink", fileLink);
+
         if (!fileLink) {
             res.status(401).json({ message: "Lien invalide." });
             return;
@@ -154,12 +156,19 @@ export async function getFile(app: App, req: Request, res: Response): Promise<vo
             return;
         }
 
+        if (!fileLink.isOnline){
+            res.status(401).json({ message: "Lien désactivé." });
+            return;
+        }
+
         const fileNameInStorage = await app.repository.fileRepository.getFileNameInStorage(fileId);
 
         if (!fileNameInStorage) {
             res.status(404).json({ message: "Fichier introuvable." });
             return;
         }
+
+        app.repository.fileRepository.addVisit(fileId); 
 
         const file = path.join(__dirname, '../fileStorage', fileNameInStorage);
 
@@ -293,6 +302,70 @@ export async function getFileLink(app: App, req: Request, res: Response): Promis
         }
 
     }).catch((error) => {
+        res.status(401).json({ message: error.message });
+    });
+}
+
+export async function getAllFileLinks(app: App, req: Request, res: Response): Promise<void> {
+    const token = req.headers.authorization?.split(" ")[1];
+    console.log("token", token);
+
+    verifyTokenAndGetUser(token).then(async (userId) => {
+        const files = await app.repository.fileRepository.getAllFileLinks(userId);
+        res.json(files);
+    }).catch((error) => {
+        res.status(401).json({ message: error.message });
+    });
+}
+
+export async function toggleFileLinkStatus(app: App, req: Request, res: Response): Promise<void> {
+    const token = req.headers.authorization?.split(" ")[1];
+    console.log("toggle status");
+
+    verifyTokenAndGetUser(token).then(async (userId) => {
+        //server.put('/api/link/:id/status', bindApp(toggleFileLinkStatus));
+
+        const fileId = req.params.id;
+        console.log("fileId", fileId);
+        const fileLink = await app.repository.fileRepository.getFileLinkFromLinkId(userId, fileId);
+
+        if (fileLink === null) {
+            res.status(404).json({ message: "Lien introuvable." });
+            return;
+        }
+
+        await app.repository.fileRepository.toggleFileLinkStatus(userId, fileId);
+
+        res.json({ message: "Lien mis à jour avec succès." });
+    }).catch((error) => {
+        res.status(401).json({ message: error.message });
+    });
+}
+
+export async function changeFileLinkExpirationDate(app: App, req: Request, res: Response): Promise<void> {
+    const token = req.headers.authorization?.split(" ")[1];
+    console.log("change expiration date");
+
+    verifyTokenAndGetUser(token).then(async (userId) => {
+        //server.put('/api/link/:id/expiration', bindApp(changeFileLinkExpirationDate));
+
+        const linkId = req.params.id;
+        console.log("linkId", linkId);
+        const fileLink = await app.repository.fileRepository.getFileLinkFromLinkId(userId, linkId);
+
+        if (fileLink === null) {
+            res.status(404).json({ message: "Lien introuvable." });
+            return;
+        }
+
+        const expiration = req.body.expiration;
+        console.log("expiration", expiration);
+
+        await app.repository.fileRepository.changeFileLinkExpirationDate(userId, linkId, expiration);
+
+        res.json({ message: "Lien mis à jour avec succès." });
+    }).catch((error) => {
+        console.log("error", error);
         res.status(401).json({ message: error.message });
     });
 }

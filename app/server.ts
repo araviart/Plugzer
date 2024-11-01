@@ -11,7 +11,7 @@ import { fileURLToPath } from 'url';
 import { register, login, verifyToken } from './controller/auth_controller';
 import { addFolder, getFolders, deleteFolder, renameFolder } from './controller/folder_controller'; 
 import { getUsedStorage } from './controller/user_controller';
-import {deleteFile, addFile, getFileLink, getFile, getFilePreview} from './controller/file_controller';
+import {deleteFile, addFile, getFileLink, getFile, getFilePreview, getAllFileLinks, toggleFileLinkStatus,changeFileLinkExpirationDate} from './controller/file_controller';
 import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -67,8 +67,12 @@ server.post('/api/file', bindApp(addFile));
 server.use('/api', routes);
 
 server.get('/api/file/link', bindApp(getFileLink));
+server.get('/api/links', bindApp(getAllFileLinks));
 server.get('/api/file/:id', bindApp(getFile));
 server.get('/api/file/:id/preview', bindApp(getFilePreview));
+server.put('/api/link/:id/status', bindApp(toggleFileLinkStatus));
+// /api/link/${linkId}/expiration
+server.put('/api/link/:id/expiration', bindApp(changeFileLinkExpirationDate));
 
 server.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));

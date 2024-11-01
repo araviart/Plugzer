@@ -10,6 +10,10 @@ export interface FileLink {
   file_id: number,
   link: string,
   expiration: Date,
+  visites?: number,
+  isOnline?: boolean,
+  fileName?: string,
+  fileId?: string,
  }
 
 export interface FileRepositoryI {
@@ -23,6 +27,11 @@ export interface FileRepositoryI {
   getFileNameInStorage: (fileId: string) => Promise<string>;
   getFileNameInStorageWithCheck: (fileId: string, userId: number) => Promise<string>;
   deleteLink: (userId: number, fileId: string) => Promise<void>;
+  addVisit: (fileId: string) => Promise<void>;
+  getAllFileLinks: (userId: number) => Promise<FileLink[]>;
+  toggleFileLinkStatus: (userId: number, linkId: string) => Promise<void>;
+  getFileLinkFromLinkId:(userId: number, linkId: string) => Promise<FileLink>;
+  changeFileLinkExpirationDate: (userId: number, linkId: string, expiration: Date) => Promise<void>;
 }
 
 

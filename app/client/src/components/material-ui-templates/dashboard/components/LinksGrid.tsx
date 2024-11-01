@@ -25,76 +25,173 @@ export interface Directory {
 }
 
 // Fonction pour rendre le statut d'un fichier
-function renderStatus(status: 'Online' | 'Offline') {
-    const colors: { [index: string]: 'success' | 'default' } = {
-        Online: 'success',
-        Offline: 'default',
+function renderStatus(status: '0' | '1', expiration: string) {
+    const colors: { [index: string]: 'success' | 'default' | 'error' } = {
+        '0': 'default',
+        '1': 'success',
+        '3': 'error',
     };
 
-    return <Chip label={status} color={colors[status]} size="small" />;
+    const isDateExpired = new Date(expiration) < new Date();
+
+    return <Chip label={isDateExpired ? "Expired" : status == '0' ? "Offline" : "Online"} color={colors[!isDateExpired ? status : '3']} size="small" />;
 }
+
+function renderLink(link:string, fileId: string | number) {
+    return `http://localhost:3000/api/file/${fileId}?token=${link}`;
+}
+
+//renderdate affiche date d'expiration + heure et minute
+// si c'est dépassé on l'affiche en rouge
+
+function renderDate(date: string) {
+    const expirationDate = new Date(date);
+    const now = new Date();
+    const isExpired = expirationDate < now;
+
+    return (
+        <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="end"
+            height="100%"
+        >
+            <Typography color={isExpired ? 'error' : 'initial'}>
+                {expirationDate.toLocaleString()}
+            </Typography>
+        </Box>
+    );
+}
+
 
 // Colonnes du tableau
 const columns: GridColDef[] = [
-    { field: 'fileName', headerName: 'Nom du fichier', flex: 1.5, minWidth: 200 },
     {
-        field: 'status',
+        field: 'fileId',
+        headerName: 'fileID',
+        flex: 0.5,
+        //@ts-ignore
+        hide: true,
+    },
+    {
+        field: 'id',
+        headerName: 'ID',
+        flex: 0.5,
+        //@ts-ignore
+        hide: true,
+        minWidth: 80,
+    },
+    {
+         field: 'nom', headerName: 'Nom du fichier', flex: 1, minWidth: 200
+    },
+    {
+        field: 'isOnline',
         headerName: 'Status',
         flex: 0.5,
         minWidth: 80,
-        renderCell: (params) => renderStatus(params.value as any),
+        renderCell: (params) => renderStatus(params.value as any, params.row.expiration),
     },
     {
         field: 'visites',
         headerName: 'Visites',
         headerAlign: 'right',
         align: 'right',
-        flex: 1,
+        flex: 0.3,
         minWidth: 80,
     },
     {
-        field: 'fileLink',
+        field: 'link',
         headerName: 'Lien du fichier',
         headerAlign: 'right',
         align: 'right',
         flex: 1,
         minWidth: 100,
+        renderCell: (params) => renderLink(params.value as any, params.row.fileId),
     },
     {
-        field: 'expirationDate',
+        field: 'expiration',
         headerName: "Date d'expiration",
         headerAlign: 'right',
         align: 'right',
         flex: 1,
         minWidth: 120,
+        renderCell: (params) => renderDate(params.value as any),
     },
 ];
 
-// Données de test pour les fichiers
-const initialRows: GridRowsProp = [
-    { id: 1, fileName: 'Fichier 1', status: 'Online', visites: 10, fileLink: 'https://example.com/file1', expirationDate: '2023-12-31' },
-    { id: 2, fileName: 'Fichier 2', status: 'Offline', visites: 5, fileLink: 'https://example.com/file2', expirationDate: '2023-12-31' },
-    { id: 3, fileName: 'Fichier 3', status: 'Online', visites: 15, fileLink: 'https://example.com/file3', expirationDate: '2023-12-31' },
-    { id: 4, fileName: 'Fichier 4', status: 'Offline', visites: 20, fileLink: 'https://example.com/file4', expirationDate: '2023-12-31' },
-    { id: 5, fileName: 'Fichier 5', status: 'Online', visites: 25, fileLink: 'https://example.com/file5', expirationDate: '2023-12-31' },
-];
 
 export default function LinksGrid() {
     const [openFileDialog, setOpenFileDialog] = React.useState(false);
+    const [unselectRows, setUnselectRows] = React.useState(false);
     const [openExpirationDialog, setOpenExpirationDialog] = React.useState(false); // Etat pour ExpirationDialog
     const [selectedLinks, setSelectedLinks] = React.useState<string[]>([]);
-    const [rows, setRows] = React.useState(initialRows); // État pour les ligne
+    const [rows, setRows] = React.useState<GridRowsProp>([]); // État pour les ligne
     const theme = useTheme();
 
-    const handleMakeUnavailable = () => {
-        const updatedRows = rows.map((row) => {
-            if (selectedLinks.includes(row.id.toString())) {
-                return { ...row, status: 'Offline' }; // Mettre à jour le statut à 'Offline'
+    React.useEffect(() => {
+        console.log('Selected links:', selectedLinks);
+    }, [selectedLinks])
+
+    const fetchData = async () => {
+        const authInfos = localStorage.getItem('authInfos');
+        if (authInfos) {
+          const { token } = JSON.parse(authInfos);
+
+            try {
+                const response = await fetch('http://localhost:3000/api/links', {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${token}` },
+                });
+    
+                const result = await response.json();
+                if (response.ok) {
+                    console.log('Fetched links:', result);
+                    setRows(result);
+                } else {
+                console.error('Failed to fetch links:', result);
+                }
+            } catch (error) {
+                console.error('Failed to fetch links:', error);
             }
-            return row;
-        });
-        setRows(updatedRows);
-        setSelectedLinks([]); // Réinitialiser les liens sélectionnés après l'action
+        }
+    };
+
+    React.useEffect(() => {
+        fetchData();
+    }, []);
+
+
+    const handleMakeUnavailable = () => {
+        const authInfos = localStorage.getItem('authInfos');
+        if (authInfos) {
+            const { token } = JSON.parse(authInfos);
+
+            selectedLinks.forEach(async (link) => {
+                //@ts-ignore
+                const linkId = link.id;
+
+                console.log(`Making link ${linkId} unavailable...`);
+                try {
+                    const response = await fetch(`http://localhost:3000/api/link/${linkId}/status`, {
+                        method: 'PUT',
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    if (response.ok) {
+                        fetchData();
+                        setSelectedLinks([]);
+                        setUnselectRows(true);
+                        console.log(`Link ${linkId} made unavailable`);
+                    } else {
+                        console.error(`Failed to make link ${linkId} unavailable`);
+                    }
+                } catch (error) {
+                    console.error(`Failed to make link ${linkId} unavailable:`, error);
+                }
+            });
+        }
+        // Recharger les données après l'action
+         // Réinitialiser les liens sélectionnés après l'action
     };
 
     const handleExtendExpiration = () => {
@@ -103,14 +200,44 @@ export default function LinksGrid() {
 
     const handleExpirationDateSelection = (selectedDate: Date | null) => {
         if (selectedDate) {
-            const updatedRows = rows.map((row) => {
-                if (selectedLinks.includes(row.id.toString())) {
-                    return { ...row, expirationDate: selectedDate.toISOString().split('T')[0] }; // Mettre à jour la date d'expiration
-                }
-                return row;
-            });
-            setRows(updatedRows);
-            setSelectedLinks([]); // Réinitialiser les liens sélectionnés après l'action
+            
+            console.log('Selected date:', selectedDate);
+
+            const authInfos = localStorage.getItem('authInfos');
+            if (authInfos) {
+                const { token } = JSON.parse(authInfos);
+
+                selectedLinks.forEach(async (link) => {
+                    //@ts-ignore
+                    const linkId = link.id;
+
+                    console.log(`Extending expiration date of link ${linkId}...`);
+                    try {
+                        const response = await fetch(`http://localhost:3000/api/link/${linkId}/expiration`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${token}`,
+                            },
+                            body: JSON.stringify({ expiration: selectedDate.toISOString() }),
+                        });
+
+                        if (response.ok) {
+                            fetchData();
+                            setSelectedLinks([]);
+                            setUnselectRows(true);
+                            console.log(`Expiration date of link ${linkId} extended`);
+                        } else {
+                            console.error(`Failed to extend expiration date of link ${linkId}`);
+                        }
+                    } catch (error) {
+                        console.error(`Failed to extend expiration date of link ${linkId}:`, error);
+                    }
+                });
+            }
+
+            //setRows(updatedRows);
+            //setSelectedLinks([]); // Réinitialiser les liens sélectionnés après l'action
         }
         setOpenExpirationDialog(false); // Fermer le dialogue
     };
@@ -128,7 +255,10 @@ export default function LinksGrid() {
                 <Box>
                     <Button
                         variant="contained"
-                        disabled={selectedLinks.length === 0}
+                        disabled={ 
+                            // il faut que le tableau selectedLinks soit vide pour que le bouton soit désactivé ou que le lien séléctionné soit expiré
+                            selectedLinks.length === 0 || !rows.find((row) => selectedLinks.includes(row.id.toString()) && new Date(row.expiration) < new Date())
+                        }
                         color="error"
                         onClick={handleMakeUnavailable}
                         startIcon={<Close />}
@@ -148,8 +278,12 @@ export default function LinksGrid() {
                 </Box>
             </Box>
 
-            <Grid2 size={{ xs: 12, lg: 9 }}>
+            <Grid2 size={{ xs: 12, lg: 9 }}
+            sx={{ minHeight: '70vh', minWidth: '100%'}}
+            >
                 <CustomizedDataGrid 
+                    unselectRows={unselectRows}
+                    setUnselectRows={setUnselectRows}
                     rows={rows}
                     columns={columns}
                     setSelectedRows={setSelectedLinks}
