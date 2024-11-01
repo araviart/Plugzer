@@ -47,17 +47,19 @@ export async function verifyToken(app: App, req: Request, res: Response): Promis
 }
 
 export async function register(app: App, req: Request, res: Response): Promise<void> {
-    console.log("registering")
-    console.log(req.body)
     const { nom, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
+
+    if (!password) {
+        res.status(400).json({ message: "Le mot de passe est requis." });
+        return;
+    }
 
     try {
-        console.log(nom,email,hashedPassword)
+        const hashedPassword = await bcrypt.hash(password, 10);
         await app.repository.userRepository.insertUser({ nom, email, password: hashedPassword });
         res.status(201).json({ message: "Utilisateur créé avec succès" });
     } catch (error) {
-        console.log(error)
+        console.error("Erreur lors de l'inscription:", error);
         res.status(500).json({ message: "Erreur lors de l'inscription", error });
     }
 }

@@ -53,7 +53,7 @@ CREATE TABLE `lien_fichier` (
   PRIMARY KEY (`id`),
   KEY `fichier_id` (`fichier_id`),
   CONSTRAINT `lien_fichier_ibfk_1` FOREIGN KEY (`fichier_id`) REFERENCES `storage` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE max_storage (
     id INT PRIMARY KEY,
