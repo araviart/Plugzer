@@ -4,6 +4,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { Directory, File } from './FilesGrid'
 import CardDropdown from './CardDropDown'
 import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 type Props = {
     element: Directory | File,
@@ -20,30 +21,62 @@ export function formatFileSize(bytes: number): string {
 
 export default function ElementCard(props: Props) {
     const theme = useTheme()
+    const [imageExists, setImageExists] = useState(false)
+    const [previewImageSrc, setPreviewImageSrc] = useState<string | null>(null)
 
     // Détecter si c'est un fichier ou un dossier
     const isFile = 'taille_fichier' in props.element
-    const hasPreview = isFile && (props.element as File).previewImage
 
     const location = useLocation();
+
+    useEffect(() => {
+        const checkImageExists = async () => {
+            const authInfos = localStorage.getItem('authInfos');
+            if (authInfos) {
+                const { token } = JSON.parse(authInfos);
+
+                try {
+                    const response = await fetch(`http://localhost:3000/api/file/${props.element.id}/preview`, {
+                        method: 'GET',
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const fileURL = URL.createObjectURL(blob);
+                        setPreviewImageSrc(fileURL); // Mettre à jour la source de l'image
+                        setImageExists(true);
+                    } else {
+                        setImageExists(false);
+                    }
+                } catch (error) {
+                    setImageExists(false);
+                }
+            }
+        };
+
+        if (isFile) {
+            checkImageExists();
+        }
+    }, [props.element.id, isFile]);
 
     const handleClick = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         if (isFile) {
             e.preventDefault();
             e.stopPropagation();
-    
+
             console.log('File clicked:', props.element);
-    
+
             const authInfos = localStorage.getItem('authInfos');
             if (authInfos) {
                 const { token } = JSON.parse(authInfos);
-    
+
                 try {
                     const response = await fetch(`http://localhost:3000/api/file/${props.element.id}`, {
                         method: 'GET',
                         headers: { Authorization: `Bearer ${token}` },
                     });
-    
+
                     if (response.ok) {
                         const blob = await response.blob();
                         const fileURL = URL.createObjectURL(blob);
@@ -57,12 +90,11 @@ export default function ElementCard(props: Props) {
             }
         }
     };
-    
 
     return (
         <Link
-        onClick={handleClick}
-        to={isFile ? location.pathname : location.pathname + "/" + props.element.nom} style={{ textDecoration: 'none' }}>
+            onClick={handleClick}
+            to={isFile ? location.pathname : location.pathname + "/" + props.element.nom} style={{ textDecoration: 'none' }}>
             <Box sx={{ position: 'relative', marginBottom: 4 }}>
                 <Card
                     variant={isFile ? 'outlined' : 'elevation'}
@@ -82,17 +114,15 @@ export default function ElementCard(props: Props) {
                     }}
                 >
                     <CardContent sx={{ padding: 1, flexGrow: 1 }}>
-                        {/* Nom avec points de suspension et ... à droite */}
                         <Stack direction="row" justifyContent="space-between" alignItems="center">
                             <Typography component="h2" variant="subtitle2" noWrap sx={{ maxWidth: '80%' }}>
                                 {props.element.nom}
                             </Typography>
                             <CardDropdown
-                            onChange={props.onChange}
-                            element={props.element} />
+                                onChange={props.onChange}
+                                element={props.element} />
                         </Stack>
 
-                        {/* Preview ou icône centrée verticalement et légèrement descendue */}
                         <Box
                             sx={{
                                 display: 'flex',
@@ -102,38 +132,37 @@ export default function ElementCard(props: Props) {
                                 my: 2
                             }}
                         >
-                            {hasPreview ? (
+                            {imageExists && previewImageSrc ? (
                                 <Box
                                     component="img"
-                                    src={(props.element as File).previewImage}
+                                    src={previewImageSrc} // Utiliser l'URL blob ici
                                     alt="preview"
                                     sx={{
                                         width: 100,
                                         height: 100,
-                                        borderRadius: '50%',
+                                        borderRadius: '0',
                                         objectFit: 'cover'
                                     }}
                                 />
                             ) : (
-                                <Icon sx={{ fontSize: 100, position: 'relative', top: 8 }}> {/* Légère descente de l'icône */}
+                                <Icon sx={{ fontSize: 100, position: 'relative', top: 8 }}>
                                     {isFile ? <InsertDriveFileIcon fontSize="inherit" /> : <FolderIcon fontSize="inherit" />}
                                 </Icon>
                             )}
                         </Box>
 
                         <Stack direction="row" justifyContent="end" alignItems="center"
-                        sx={{position:'relative', top:30}}   
+                            sx={{ position: 'relative', top: 30 }}
                         >
                             <Typography variant="caption">
                                 {
-                                //@ts-ignore
-                                (props.element && props.element.taille_fichier !== undefined) ?formatFileSize(props.element!.taille_fichier) : ''}
+                                    //@ts-ignore
+                                    (props.element && props.element.taille_fichier !== undefined) ? formatFileSize(props.element!.taille_fichier) : ''}
                             </Typography>
                         </Stack>
                     </CardContent>
                 </Card>
 
-                {/* Date de dernière modification en bas de la carte avec espace */}
                 <Typography variant="caption" sx={{ color: 'text.secondary', position: 'absolute', bottom: -25 }}>
                     Dernière modification: {props.element.lastOpenedAt ? new Date(props.element.lastOpenedAt).toLocaleDateString() : 'N/A'}
                 </Typography>

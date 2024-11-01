@@ -8,6 +8,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { FileLink } from "type/file";
 import crypto from "crypto";
+//@ts-ignore
+import pdf from 'pdf-poppler';
+import sharp from 'sharp';
 
 
 // Get the current directory name equivalent to __dirname
@@ -185,6 +188,79 @@ export async function getFile(app: App, req: Request, res: Response): Promise<vo
         });
     }
 }
+
+
+export async function getFilePreview(app: App, req: Request, res: Response): Promise<void> {
+    console.log("getFilePreview");
+
+    const fileId = req.params.id;
+
+    if (!fileId) {
+        res.status(401).json({ message: "ID de fichier manquant." });
+        return;
+    }
+
+    const authToken = req.headers.authorization?.split(" ")[1];
+    if (!authToken) {
+        res.status(401).json({ message: "Token d'authentification manquant." });
+        return;
+    }
+
+    try {
+        const userId = await verifyTokenAndGetUser(authToken);
+        const fileNameInStorage = await app.repository.fileRepository.getFileNameInStorageWithCheck(fileId, userId);
+
+        if (!fileNameInStorage) {
+            res.status(404).json({ message: "Fichier introuvable." });
+            return;
+        }
+
+        const filePath = path.join(__dirname, '../fileStorage', fileNameInStorage);
+        const fileType = path.extname(fileNameInStorage).toLowerCase();
+
+        if (fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png') {
+            // Prévisualisation d'image
+            const preview = await sharp(filePath)
+                .resize(200) // Taille réduite pour la prévisualisation
+                .toBuffer();
+            res.set('Content-Type', 'image/jpeg');
+            res.send(preview);
+        } else if (fileType === '.pdf') {
+            // Prévisualisation PDF : convertir la première page en image
+            const options = {
+                format: 'jpeg',
+                out_dir: path.dirname(filePath),
+                out_prefix: path.basename(filePath, path.extname(filePath)),
+                page: 1
+            };
+
+            const outputPath = `${options.out_dir}/${options.out_prefix}-1.jpg`;
+
+            // Vérifiez si le fichier de prévisualisation existe déjà
+            if (!fs.existsSync(outputPath)) {
+                await pdf.convert(filePath, options); // Convertit la première page en image
+            }
+
+            // Assurez-vous que le fichier de prévisualisation existe avant de le traiter
+            if (fs.existsSync(outputPath)) {
+                const preview = await sharp(outputPath)
+                    .resize(200) // Taille réduite pour la prévisualisation
+                    .toBuffer();
+                res.set('Content-Type', 'image/jpeg');
+                res.send(preview);
+            } else {
+                res.status(500).json({ message: "Erreur lors de la génération de la prévisualisation du PDF." });
+            }
+        } else {
+            res.status(400).json({ message: "Prévisualisation non disponible pour ce type de fichier." });
+        }
+    } catch (error) {
+        console.error("Erreur lors de la prévisualisation du fichier:", error);
+        res.status(500).json({ message: "Erreur lors de la génération de la prévisualisation." });
+    }
+}
+
+
 
 export async function getFileLink(app: App, req: Request, res: Response): Promise<void> {
     const token = req.headers.authorization?.split(" ")[1];
