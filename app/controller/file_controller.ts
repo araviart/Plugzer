@@ -36,7 +36,19 @@ export async function deleteFile(app: App, req: Request, res: Response): Promise
     console.log("token", token);
 
     verifyTokenAndGetUser(token).then(async (userId) => {
+        const fileNameInStorage = await app.repository.fileRepository.getFileNameInStorageWithCheck(req.params.id as string, userId);
+
+        console.log("fileNameInStorage", fileNameInStorage);
+
+        if (!fileNameInStorage) {
+            res.status(404).json({ message: "Fichier introuvable." });
+            return;
+        }
+
         await app.repository.fileRepository.deleteFile(userId, req.params.id as unknown as number);
+
+        fs.unlinkSync(path.join(__dirname, '../fileStorage', fileNameInStorage));
+
         res.json({ message: "Dossier supprimé avec succès." });
     }).catch((error) => {
         res.status(401).json({ message: error.message });
@@ -54,6 +66,9 @@ export async function addFile(app: App, req: Request, res: Response): Promise<vo
         console.log("Token:", token);
 
         const file = req.file; // Le fichier téléchargé
+
+        console.log("Fichier reçu :", file); // Vérifie le fichier
+
         const path = req.body.path; // Le champ `path`
 
         console.log("Fichier reçu :", file); // Vérifie le fichier
