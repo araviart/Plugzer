@@ -69,9 +69,9 @@ export default function OptionsMenu() {
           },
         }}
       >
-        <MenuItem onClick={handleClose}>Modifier mon profil</MenuItem>
+        {/* <MenuItem onClick={handleClose}>Modifier mon profil</MenuItem>
         <MenuItem onClick={handleClose}>Voir mes fichiers</MenuItem>
-        <Divider />
+        <Divider /> */}
         <MenuItem
           onClick={handleLogoutClick}
           sx={{

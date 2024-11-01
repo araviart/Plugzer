@@ -54,7 +54,7 @@ export default function CardDropdown(props: Props) {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleClose = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     event.stopPropagation(); // Empêche la propagation lors de la fermeture du menu
@@ -63,12 +63,12 @@ export default function CardDropdown(props: Props) {
 
   const isFile = (element: Directory | File): element is File => (element as File).taille_fichier !== undefined;
 
-  const deleteElement = async ({force}:{force:boolean}) => {
+  const deleteElement = async ({ force }: { force: boolean }) => {
     const authInfos = localStorage.getItem('authInfos');
     if (authInfos) {
       const { token } = JSON.parse(authInfos);
-      
-      const path = location.pathname == "/files" ? null : location.pathname.split('/files/').pop()??null;
+
+      const path = location.pathname == "/files" ? null : location.pathname.split('/files/').pop() ?? null;
 
       console.log(path)
 
@@ -84,7 +84,7 @@ export default function CardDropdown(props: Props) {
         });
 
         console.log(response)
-  
+
         const result = await response.json();
         if (response.ok) {
           console.log(result);
@@ -95,14 +95,14 @@ export default function CardDropdown(props: Props) {
           //handleClose();
         } else {
           // si c'est unauthorized on demande une confirmation
-          if(response.status == 401 && !force){
+          if (response.status == 401 && !force) {
             setConfirmOpen(true);
           }
-         // setErrorMessage(result.message || 'Échec de l\'ajout du dossier.');
+          // setErrorMessage(result.message || 'Échec de l\'ajout du dossier.');
         }
       } catch (error) {
         console.error("Erreur lors de l'ajout du dossier:", error);
-       // setErrorMessage('Erreur du serveur. Veuillez réessayer plus tard.');
+        // setErrorMessage('Erreur du serveur. Veuillez réessayer plus tard.');
       }
     }
   }
@@ -111,8 +111,8 @@ export default function CardDropdown(props: Props) {
     event.preventDefault();
     event.stopPropagation();
 
-    deleteElement({force:false});
-    
+    deleteElement({ force: false });
+
     console.log('Suppression de', props.element);
     setAnchorEl(null);
   }
@@ -133,7 +133,7 @@ export default function CardDropdown(props: Props) {
         });
 
         console.log(response)
-  
+
         const result = await response.json();
         if (response.ok) {
           console.log(result);
@@ -143,14 +143,14 @@ export default function CardDropdown(props: Props) {
           //handleClose();
         } else {
           // si c'est unauthorized on demande une confirmation
-          if(response.status == 401){
+          if (response.status == 401) {
             setConfirmOpen(true);
           }
-         // setErrorMessage(result.message || 'Échec de l\'ajout du dossier.');
+          // setErrorMessage(result.message || 'Échec de l\'ajout du dossier.');
         }
       } catch (error) {
         console.error("Erreur lors de l'ajout du dossier:", error);
-       // setErrorMessage('Erreur du serveur. Veuillez réessayer plus tard.');
+        // setErrorMessage('Erreur du serveur. Veuillez réessayer plus tard.');
       }
     }
   }
@@ -182,6 +182,34 @@ export default function CardDropdown(props: Props) {
     setAnchorEl(null); // Fermer le menu
   }
 
+  const handleShowFile = async () => {
+    console.log('File clicked:', props.element);
+
+    const authInfos = localStorage.getItem('authInfos');
+    if (authInfos) {
+      const { token } = JSON.parse(authInfos);
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/file/${props.element.id}`, {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const fileURL = URL.createObjectURL(blob);
+          window.open(fileURL, '_blank'); // Ouvre le fichier dans un nouvel onglet
+        } else {
+          console.error("Erreur lors de la récupération du fichier:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Erreur réseau:", error);
+      }
+    }
+
+  };
+
+
   return (
     <React.Fragment
     >
@@ -194,7 +222,7 @@ export default function CardDropdown(props: Props) {
         aria-expanded={open ? 'true' : undefined}
         {...props}
       >
-        <MoreHorizRounded/>
+        <MoreHorizRounded />
       </IconButton>
       <Menu
         anchorEl={anchorEl}
@@ -213,26 +241,27 @@ export default function CardDropdown(props: Props) {
         {
           isFile(props.element) ? (
             <>
-              <MenuItem onClick={handleClose}>Afficher le fichier</MenuItem>
+              <MenuItem onClick={handleShowFile}>Afficher le fichier</MenuItem>
               <MenuItem onClick={handleGenerateLink}>Générer un lien de partage</MenuItem>
-              <MenuItem onClick={handleShowActiveLinks}>Voir les liens actif</MenuItem>
+              {//<MenuItem onClick={handleShowActiveLinks}>Voir les liens actif</MenuItem>
+              }
             </>
           )
-          :
-          (
-            <MenuItem onClick={handleEditName}>Modifier le nom du dossier</MenuItem>
-          )
+            :
+            (
+              <MenuItem onClick={handleEditName}>Modifier le nom du dossier</MenuItem>
+            )
         }
         <Divider />
         <MenuItem onClick={handleDelete}>
-          <Typography 
-          color="error">Supprimer</Typography>
+          <Typography
+            color="error">Supprimer</Typography>
         </MenuItem>
       </Menu>
       <AreYouSureDialog
         open={confirmOpen}
         text="Ce dossier n'est pas vide voulez vous vraiment le supprimer?"
-        onConfirm={() => deleteElement({force: true})}
+        onConfirm={() => deleteElement({ force: true })}
         // @ts-ignore
         handleClose={handleCloseConfirm}
       />
@@ -246,6 +275,8 @@ export default function CardDropdown(props: Props) {
       <GenerateLinkDialog
         open={generateLinkDialogOpen}
         description="Voici le lien de partage généré :"
+        // @ts-ignore
+        file={props.element}
         // @ts-ignore
         handleClose={handleCloseGenerateLinkDialog}
       />

@@ -1,65 +1,59 @@
-
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
+import { useEffect, useState } from 'react';
 
 type Props = {
   rows: readonly any[];
   columns: GridColDef[];
   setSelectedRows?: (rows: any[]) => void;
+  unselectRows?: boolean;
+  setUnselectRows?: (value: boolean) => void;
 };
 
 export default function CustomizedDataGrid(props: Props) {
-  const handleSelectionChange = (selectionModel: any) => {
-    // Récupérer les lignes sélectionnées à partir du modèle de sélection
-    const selectedRows = props.rows.filter(row => selectionModel.includes(row.id));
-    
-    // Appeler la fonction setSelectedRows si elle est définie
+  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+
+  const handleSelectionChange = (newSelectionModel: GridRowSelectionModel) => {
+    setSelectionModel(newSelectionModel);
+
+    // Met à jour les lignes sélectionnées en fonction du modèle de sélection actuel
+    const selectedRows = props.rows.filter(row => newSelectionModel.includes(row.id));
     if (props.setSelectedRows) {
       props.setSelectedRows(selectedRows);
     }
   };
 
+  // Fonction pour effacer la sélection
+  const clearSelection = () => {
+    setSelectionModel([]);
+    if (props.setSelectedRows) {
+      props.setSelectedRows([]); // Réinitialise les lignes sélectionnées dans le parent
+    }
+  };
+
+  useEffect(() => {
+    if (props.unselectRows) {
+      props.setUnselectRows && props.setUnselectRows(false);
+      clearSelection();
+    }
+  }, [props.unselectRows]);
+
   return (
-    <DataGrid
-      autoHeight
-      checkboxSelection
-      rows={props.rows}
-      columns={props.columns}
-      getRowClassName={(params) =>
-        params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
-      }
-      initialState={{
-        pagination: { paginationModel: { pageSize: 20 } },
-      }}
-      pageSizeOptions={[10, 20, 50]}
-      disableColumnResize
-      density="compact"
-      onRowSelectionModelChange={handleSelectionChange} // Ajout de l'événement
-      slotProps={{
-        filterPanel: {
-          filterFormProps: {
-            logicOperatorInputProps: {
-              variant: 'outlined',
-              size: 'small',
-            },
-            columnInputProps: {
-              variant: 'outlined',
-              size: 'small',
-              sx: { mt: 'auto' },
-            },
-            operatorInputProps: {
-              variant: 'outlined',
-              size: 'small',
-              sx: { mt: 'auto' },
-            },
-            valueInputProps: {
-              InputComponentProps: {
-                variant: 'outlined',
-                size: 'small',
-              },
-            },
-          },
-        },
-      }}
-    />
+    <div>
+      <DataGrid
+        sx={{ height: '70vh', maxHeight: '70vh' }}
+        checkboxSelection
+        rows={props.rows}
+        columns={props.columns}
+        pageSizeOptions={[10, 20, 50]}
+        disableColumnResize
+        density="compact"
+        disableMultipleRowSelection
+        onRowSelectionModelChange={handleSelectionChange}
+        rowSelectionModel={selectionModel} // Utilise le modèle de sélection pour contrôle
+        initialState={{
+          pagination: { paginationModel: { pageSize: 20 } },
+        }}
+      />  
+    </div>
   );
 }
