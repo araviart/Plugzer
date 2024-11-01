@@ -68,11 +68,23 @@ export async function addFile(app: App, req: Request, res: Response): Promise<vo
             const userId = await verifyTokenAndGetUser(token);
             // Additional processing logic here...
 
-            const parentFolderId = path ? await app.repository.folderRepository.getParentFolderIdFromPath(userId, path) : null;
+            const {totalStorageUsed, maxStorage} = await app.repository.userRepository.getUsedStorage(userId);
 
-            app.repository.fileRepository.addFile(userId, file, path ?? null, parentFolderId);
+            if (totalStorageUsed + file.size > maxStorage) {
+                res.status(400).json({ message: "Espace de stockage insuffisant." });
+                
+                // delete the file from the storage
 
-            res.json({ message: "Fichier ajouté avec succès." });
+                fs.unlinkSync(file.path);
+            }   
+            else{
+                const parentFolderId = path ? await app.repository.folderRepository.getParentFolderIdFromPath(userId, path) : null;
+    
+                app.repository.fileRepository.addFile(userId, file, path ?? null, parentFolderId);
+    
+                res.json({ message: "Fichier ajouté avec succès." });
+            }         
+
         } catch (error) {
             console.error("Error verifying token or processing file:", error);
             res.status(401).json({ message: error });

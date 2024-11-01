@@ -5,7 +5,7 @@ import AddFileDialog from './dialog/AddFileDialog';
 import ExpirationDialog from './dialog/ExpirationDialog'; // Importez le ExpirationDialog
 import CustomizedDataGrid from './CustomizedDataGrid';
 import Grid2 from '@mui/material/Grid2';
-import { Close } from '@mui/icons-material';
+import { Check, Close } from '@mui/icons-material';
 import { GridColDef, GridRowsProp } from '@mui/x-data-grid';
 import { TimeIcon } from '@mui/x-date-pickers';
 
@@ -128,10 +128,6 @@ export default function LinksGrid() {
     const [rows, setRows] = React.useState<GridRowsProp>([]); // État pour les ligne
     const theme = useTheme();
 
-    React.useEffect(() => {
-        console.log('Selected links:', selectedLinks);
-    }, [selectedLinks])
-
     const fetchData = async () => {
         const authInfos = localStorage.getItem('authInfos');
         if (authInfos) {
@@ -160,6 +156,24 @@ export default function LinksGrid() {
         fetchData();
     }, []);
 
+    const [isAnySelectedLinkExpired, setIsAnySelectedLinkExpired] = React.useState(false);
+    const [isSelectedLinkDisabled, setIsSelectedLinkDisabled] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsAnySelectedLinkExpired(selectedLinks.some((link) => {
+            //@ts-ignore
+            const expirationDate = new Date(link.expiration);
+            const now = new Date();
+            return expirationDate < now;
+        }));
+
+        console.log(selectedLinks)
+
+        setIsSelectedLinkDisabled(selectedLinks.some((link) => {
+            //@ts-ignore
+            return link.isOnline == '0';
+        }));
+    }, [selectedLinks])
 
     const handleMakeUnavailable = () => {
         const authInfos = localStorage.getItem('authInfos');
@@ -255,16 +269,17 @@ export default function LinksGrid() {
                 <Box>
                     <Button
                         variant="contained"
-                        disabled={ 
-                            // il faut que le tableau selectedLinks soit vide pour que le bouton soit désactivé ou que le lien séléctionné soit expiré
-                            selectedLinks.length === 0 || !rows.find((row) => selectedLinks.includes(row.id.toString()) && new Date(row.expiration) < new Date())
-                        }
-                        color="error"
+                        disabled={selectedLinks.length === 0 || isAnySelectedLinkExpired}
+                        color={isSelectedLinkDisabled ? "success" : "error"}
                         onClick={handleMakeUnavailable}
-                        startIcon={<Close />}
+                        startIcon={
+                            isSelectedLinkDisabled ? <Check /> :
+                        <Close />}
                         sx={{ mr: 1 }}
                     >
-                        Rendre indisponible
+                        {
+                            isSelectedLinkDisabled ? "Rendre disponible" : "Rendre indisponible"
+                        }
                     </Button>
                     <Button
                         variant="contained"
