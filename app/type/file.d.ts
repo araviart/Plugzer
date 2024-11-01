@@ -22,6 +22,7 @@ export interface FileRepositoryI {
   getFileLinkFromToken: (fileId: string, token: string) => Promise<FileLink>;
   getFileNameInStorage: (fileId: string) => Promise<string>;
   getFileNameInStorageWithCheck: (fileId: string, userId: number) => Promise<string>;
+  deleteLink: (userId: number, fileId: string) => Promise<void>;
 }
 
 

@@ -27,6 +27,8 @@ export default function GenerateLinkDialog({
   const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
+    setHasCopied(false);
+
     const askForLink = async () => {
       const authInfos = localStorage.getItem('authInfos');
       if (authInfos) {

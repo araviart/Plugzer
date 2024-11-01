@@ -271,7 +271,7 @@ export async function getFileLink(app: App, req: Request, res: Response): Promis
         console.log(userId, fileId);
         const file = await app.repository.fileRepository.getFileLink(userId, fileId);
 
-        if (file === null) {
+        if (file === null || file.expiration < new Date()) {
             generateTemporarLink(fileId, userId, app).then((fileLink) => {
                 console.log("Generated file link:", fileLink);
                 res.json(fileLink);
@@ -281,6 +281,10 @@ export async function getFileLink(app: App, req: Request, res: Response): Promis
                 })
         }
         else {
+            if (file.expiration < new Date()) {
+                // Supprimer le lien expiré
+                await app.repository.fileRepository.deleteLink(userId, fileId);
+            }
             res.json({
                 file_id: file.file_id,
                 link: `http://localhost:3000/api/file/${fileId}?token=${file.link}`,

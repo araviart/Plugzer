@@ -14,6 +14,12 @@ import { UserI } from "../type/user";
  */
 export function getFileRepository(database: Pool): FileRepositoryI {
   return {
+    async deleteLink(userId: number, fileId: string): Promise<void> {
+      console.log('delete link');
+      console.log('fileId', fileId);
+      console.log('userId', userId);
+      await database.execute("DELETE FROM lien_fichier WHERE fichier_id = ?", [fileId]);
+    },
     async createLink(userId: number, fileLink: FileLink): Promise<FileLink> {
       console.log('create link');
       console.log('fileLink', fileLink);
