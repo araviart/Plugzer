@@ -6,14 +6,14 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
 
 interface ExpirationDialogProps {
   open: boolean;
   handleClose: () => void;
-  onSelectExpiration: (selectedDate: Date | null) => void; // Modifiez ce type
+  onSelectExpiration: (selectedDate: Date | null) => void;
 }
 
 export default function ExpirationDialog({
@@ -39,15 +39,15 @@ export default function ExpirationDialog({
         sx: { backgroundImage: 'none' },
       }}
     >
-      <DialogTitle>Sélectionner la date d'expiration</DialogTitle>
+      <DialogTitle>Sélectionner la date et l'heure d'expiration</DialogTitle>
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
         <DialogContentText>
-          Veuillez choisir la date d'expiration souhaitée.
+          Veuillez choisir la date et l'heure d'expiration souhaitées.
         </DialogContentText>
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            label="Date d'expiration"
+          <DateTimePicker
+            label="Date et heure d'expiration"
             value={expirationDate}
             onChange={(newDate) => setExpirationDate(newDate)}
             slotProps={{ textField: { fullWidth: true, required: true } }}
