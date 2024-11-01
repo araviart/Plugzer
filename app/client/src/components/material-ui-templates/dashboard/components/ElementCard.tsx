@@ -56,7 +56,10 @@ export default function ElementCard(props: Props) {
         };
 
         if (isFile) {
-            checkImageExists();
+            checkImageExists()  ;
+        }
+        else{
+            setImageExists(false);
         }
     }, [props.element.id, isFile]);
 
