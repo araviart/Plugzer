@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Button, Box, Typography, useTheme, Chip } from '@mui/material';
 import Copyright from '../internals/components/Copyright';
-import AddFileDialog from './dialog/AddFileDialog';
 import ExpirationDialog from './dialog/ExpirationDialog'; // Importez le ExpirationDialog
 import CustomizedDataGrid from './CustomizedDataGrid';
 import Grid2 from '@mui/material/Grid2';
@@ -121,7 +120,6 @@ const columns: GridColDef[] = [
 
 
 export default function LinksGrid() {
-    const [openFileDialog, setOpenFileDialog] = React.useState(false);
     const [unselectRows, setUnselectRows] = React.useState(false);
     const [openExpirationDialog, setOpenExpirationDialog] = React.useState(false); // Etat pour ExpirationDialog
     const [selectedLinks, setSelectedLinks] = React.useState<string[]>([]);

@@ -6,7 +6,6 @@ import Copyright from '../internals/components/Copyright';
 import ElementCard from './ElementCard';
 import AddFileDialog from './dialog/AddFileDialog';
 import AddFolderDialog from './dialog/AddFolderDialog';
-import { useAuth } from '../../../../AuthContext';
 import { useLocation } from 'react-router-dom';
 
 export interface File {

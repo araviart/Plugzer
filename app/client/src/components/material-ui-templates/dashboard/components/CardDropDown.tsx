@@ -22,7 +22,7 @@ export default function CardDropdown(props: Props) {
   const [askTextDialogOpen, setAskTextDialogOpen] = React.useState(false); // État pour le dialogue AskText
   const [generateLinkDialogOpen, setGenerateLinkDialogOpen] = React.useState(false); // État pour le dialogue de génération de lien
   const [LinksDialogOpen, setLinksDialogOpen] = React.useState(false); // État pour le dialogue de génération de lien
-  const [newName, setNewName] = React.useState(''); // État pour stocker le nouveau nom du dossier
+  const [_, setNewName] = React.useState(''); // État pour stocker le nouveau nom du dossier
   const open = Boolean(anchorEl);
 
   const handleCloseLinkDialogOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -175,12 +175,12 @@ export default function CardDropdown(props: Props) {
     setAnchorEl(null); // Fermer le menu
   }
 
-  const handleShowActiveLinks = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setLinksDialogOpen(true); // Ouvrir le dialogue de génération de lien
-    setAnchorEl(null); // Fermer le menu
-  }
+  // const handleShowActiveLinks = (event: React.MouseEvent<HTMLElement>) => {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+  //   setLinksDialogOpen(true); // Ouvrir le dialogue de génération de lien
+  //   setAnchorEl(null); // Fermer le menu
+  // }
 
   const handleShowFile = async () => {
     console.log('File clicked:', props.element);

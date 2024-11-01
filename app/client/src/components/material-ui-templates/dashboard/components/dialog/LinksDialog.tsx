@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Button, Box, Dialog, DialogActions, DialogContent, DialogTitle, Typography, Chip, useTheme } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography, Chip } from '@mui/material';
 import CustomizedDataGrid from '../CustomizedDataGrid';
 import { GridColDef, GridRowsProp } from '@mui/x-data-grid';
-import { Close, AccessTime as TimeIcon } from '@mui/icons-material';
+import { Close } from '@mui/icons-material';
 
 interface LinksDialogProps {
   open: boolean;
@@ -66,7 +66,6 @@ const initialRows: GridRowsProp = [
 export default function LinksDialog({ open, handleClose }: LinksDialogProps) {
   const [rows, setRows] = React.useState(initialRows);
   const [selectedLinks, setSelectedLinks] = React.useState<string[]>([]);
-  const theme = useTheme();
 
   const handleMakeUnavailable = () => {
     const updatedRows = rows.map((row) =>
