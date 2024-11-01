@@ -1,2 +1,5 @@
 /app/node_modules
 /node_modules
+
+/app/fileStorage
+/app/compressed

@@ -247,6 +247,8 @@ export default function CardDropdown(props: Props) {
         open={generateLinkDialogOpen}
         description="Voici le lien de partage généré :"
         // @ts-ignore
+        file={props.element}
+        // @ts-ignore
         handleClose={handleCloseGenerateLinkDialog}
       />
       <LinksDialog

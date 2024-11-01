@@ -27,8 +27,42 @@ export default function ElementCard(props: Props) {
 
     const location = useLocation();
 
+    const handleClick = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        if (isFile) {
+            e.preventDefault();
+            e.stopPropagation();
+    
+            console.log('File clicked:', props.element);
+    
+            const authInfos = localStorage.getItem('authInfos');
+            if (authInfos) {
+                const { token } = JSON.parse(authInfos);
+    
+                try {
+                    const response = await fetch(`http://localhost:3000/api/file/${props.element.id}`, {
+                        method: 'GET',
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+    
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const fileURL = URL.createObjectURL(blob);
+                        window.open(fileURL, '_blank'); // Ouvre le fichier dans un nouvel onglet
+                    } else {
+                        console.error("Erreur lors de la récupération du fichier:", response.statusText);
+                    }
+                } catch (error) {
+                    console.error("Erreur réseau:", error);
+                }
+            }
+        }
+    };
+    
+
     return (
-        <Link to={location.pathname + "/" + props.element.nom} style={{ textDecoration: 'none' }}>
+        <Link
+        onClick={handleClick}
+        to={isFile ? location.pathname : location.pathname + "/" + props.element.nom} style={{ textDecoration: 'none' }}>
             <Box sx={{ position: 'relative', marginBottom: 4 }}>
                 <Card
                     variant={isFile ? 'outlined' : 'elevation'}

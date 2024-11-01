@@ -6,6 +6,9 @@ import archiver from "archiver";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { FileLink } from "type/file";
+import crypto from "crypto";
+
 
 // Get the current directory name equivalent to __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -24,50 +27,6 @@ const storage = multer.diskStorage({
 
 // Initialisation de l'upload
 const upload = multer({ storage: storage });
-
-// Compression middleware
-async function compressFileOrFolder(req: Request, res: Response, next: Function) {
-    if (!req.file) return next(); // Skip if no file
-
-    try {
-        const outputDir = path.join(__dirname, '../compressed');
-        if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
-        const zipFilePath = path.join(outputDir, `compressed-${Date.now()}.zip`);
-        const output = fs.createWriteStream(zipFilePath);
-        const archive = archiver('zip', { zlib: { level: 9 } });
-
-        output.on('close', () => {
-            console.log(`Compression complete, ${archive.pointer()} total bytes`);
-            if (req.file) {
-                req.file.path = zipFilePath; // Update path to the compressed file
-                req.file.filename = path.basename(zipFilePath); // Update filename to the ZIP file
-            }
-            next();
-        });
-
-        archive.on('error', (err) => {
-            throw err;
-        });
-
-        archive.pipe(output);
-
-        // Add file or folder to the archive
-        if (req.file) {
-            archive.file(req.file.path, { name: req.file.originalname });
-        } else {
-            const folderPath = path.join(__dirname, '../fileStorage');
-            if (fs.existsSync(folderPath)) {
-                archive.directory(folderPath, false);
-            }
-        }
-
-        await archive.finalize();
-    } catch (error) {
-        console.error("Error during compression:", error);
-        res.status(500).json({ message: 'Error during compression' });
-    }
-}
 
 export async function deleteFile(app: App, req: Request, res: Response): Promise<void> {
     const token = req.headers.authorization?.split(" ")[1];
@@ -88,33 +47,33 @@ export async function addFile(app: App, req: Request, res: Response): Promise<vo
             return res.status(500).json({ message: 'Erreur lors du traitement du formdata.' });
         }
 
-        compressFileOrFolder(req, res, async () => {
-            const token = req.headers.authorization?.split(" ")[1];
-            console.log("Token:", token);
+        const token = req.headers.authorization?.split(" ")[1];
+        console.log("Token:", token);
 
-            const file = req.file; // Uploaded file
-            const path = req.body.path; // `path` field
+        const file = req.file; // Le fichier téléchargé
+        const path = req.body.path; // Le champ `path`
 
-            console.log("Fichier reçu :", file); // Verify file
-            console.log("Chemin reçu :", path); // Verify path
+        console.log("Fichier reçu :", file); // Vérifie le fichier
+        console.log("Chemin reçu :", path); // Vérifie le chemin
 
-            if (!file) {
-                res.status(400).json({ message: "Le fichier est requis." });
-                return;
-            }
+        if (!file) {
+            res.status(400).json({ message: "Le fichier est requis." });
+            return;
+        }
 
-            try {
-                const userId = await verifyTokenAndGetUser(token);
-                const parentFolderId = path ? await app.repository.folderRepository.getParentFolderIdFromPath(userId, path) : null;
+        try {
+            const userId = await verifyTokenAndGetUser(token);
+            // Additional processing logic here...
 
-                await app.repository.fileRepository.addFile(userId, file, path ?? null, parentFolderId);
+            const parentFolderId = path ? await app.repository.folderRepository.getParentFolderIdFromPath(userId, path) : null;
 
-                res.json({ message: "Fichier ajouté avec succès." });
-            } catch (error) {
-                console.error("Error verifying token or processing file:", error);
-                res.status(401).json({ message: error });
-            }
-        });
+            app.repository.fileRepository.addFile(userId, file, path ?? null, parentFolderId);
+
+            res.json({ message: "Fichier ajouté avec succès." });
+        } catch (error) {
+            console.error("Error verifying token or processing file:", error);
+            res.status(401).json({ message: error });
+        }
     });
 }
 
@@ -126,6 +85,133 @@ export async function getFiles(app: App, req: Request, res: Response): Promise<v
         const parentFolderId = req.query.id ? parseInt(req.query.id as string) : null;
         const files = await app.repository.fileRepository.getFiles(userId, parentFolderId);
         res.json(files);
+    }).catch((error) => {
+        res.status(401).json({ message: error.message });
+    });
+}
+
+// Génère un lien temporaire pour accéder à un fichier
+export async function generateTemporarLink(fileId: string, userId: number, app: App): Promise<FileLink> {
+    const fileNameInStorage = await app.repository.fileRepository.getFileNameInStorage(fileId);
+
+    if (!fileNameInStorage) {
+        throw new Error('Fichier introuvable');
+    }
+
+    // Crée un token unique
+    const token = crypto.randomBytes(16).toString("hex");
+    const expiration = Date.now() + 15 * 60 * 1000; // Expire dans 15 minutes
+
+    // Stocke le lien temporaire dans la base de données ou en mémoire (par exemple, dans Redis)
+    await app.repository.fileRepository.createLink(userId, {
+        file_id: parseInt(fileId),
+        link: token,
+        expiration: new Date(expiration)
+    });
+
+    // Retourne le lien temporaire
+    return {
+        file_id: parseInt(fileId),
+        link: `http://localhost:3000/api/file/${fileId}?token=${token}`,
+        expiration: new Date(expiration)
+    };
+}
+
+export async function getFile(app: App, req: Request, res: Response): Promise<void> {
+
+    console.log("getfile")
+
+
+    const fileId = req.params.id;
+
+
+    if (!fileId) {
+        res.status(401).json({ message: "ID de fichier manquant." });
+        return;
+    }
+
+    if (req.headers.authorization === undefined) {
+        const token = req.query.token as string;
+        console.log("token", token);
+
+        if (!token) {
+            res.status(401).json({ message: "Token manquant." });
+            return;
+        }
+
+        const fileLink = await app.repository.fileRepository.getFileLinkFromToken(fileId, token);
+
+        if (!fileLink) {
+            res.status(401).json({ message: "Lien invalide." });
+            return;
+        }
+
+        if (fileLink.expiration < new Date()) {
+            res.status(401).json({ message: "Lien expiré." });
+            return;
+        }
+
+        const fileNameInStorage = await app.repository.fileRepository.getFileNameInStorage(fileId);
+
+        if (!fileNameInStorage) {
+            res.status(404).json({ message: "Fichier introuvable." });
+            return;
+        }
+
+        const file = path.join(__dirname, '../fileStorage', fileNameInStorage);
+
+        res.sendFile(file);
+    }
+    else {
+        const userToken = req.headers.authorization?.split(" ")[1];
+        console.log("token", userToken);
+
+        verifyTokenAndGetUser(userToken).then(async (userId) => {
+            const fileLink = await app.repository.fileRepository.getFileNameInStorageWithCheck(fileId, userId);
+
+            if (!fileLink) {
+                res.status(404).json({ message: "Fichier introuvable." });
+                return;
+            }
+
+            console.log("fileLink", fileLink);
+
+
+            const file = path.join(__dirname, '../fileStorage', fileLink);
+
+            console.log("file", file);
+
+            res.sendFile(file);
+        });
+    }
+}
+
+export async function getFileLink(app: App, req: Request, res: Response): Promise<void> {
+    const token = req.headers.authorization?.split(" ")[1];
+    console.log("token", token);
+
+    verifyTokenAndGetUser(token).then(async (userId) => {
+        const fileId = req.query.id as string;
+        console.log(userId, fileId);
+        const file = await app.repository.fileRepository.getFileLink(userId, fileId);
+
+        if (file === null) {
+            generateTemporarLink(fileId, userId, app).then((fileLink) => {
+                console.log("Generated file link:", fileLink);
+                res.json(fileLink);
+            })
+                .catch((error) => {
+                    res.status(401).json({ message: error.message });
+                })
+        }
+        else {
+            res.json({
+                file_id: file.file_id,
+                link: `http://localhost:3000/api/file/${fileId}?token=${file.link}`,
+                expiration: file.expiration
+            })
+        }
+
     }).catch((error) => {
         res.status(401).json({ message: error.message });
     });
