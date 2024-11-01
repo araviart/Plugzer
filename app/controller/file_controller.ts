@@ -8,10 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { FileLink } from "type/file";
 import crypto from "crypto";
-//@ts-ignore
-import pdf from 'pdf-poppler';
 import sharp from 'sharp';
-
 
 // Get the current directory name equivalent to __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -225,7 +222,6 @@ export async function getFile(app: App, req: Request, res: Response): Promise<vo
     }
 }
 
-
 export async function getFilePreview(app: App, req: Request, res: Response): Promise<void> {
     console.log("getFilePreview");
 
@@ -261,32 +257,6 @@ export async function getFilePreview(app: App, req: Request, res: Response): Pro
                 .toBuffer();
             res.set('Content-Type', 'image/jpeg');
             res.send(preview);
-        } else if (fileType === '.pdf') {
-            // Prévisualisation PDF : convertir la première page en image
-            const options = {
-                format: 'jpeg',
-                out_dir: path.dirname(filePath),
-                out_prefix: path.basename(filePath, path.extname(filePath)),
-                page: 1
-            };
-
-            const outputPath = `${options.out_dir}/${options.out_prefix}-1.jpg`;
-
-            // Vérifiez si le fichier de prévisualisation existe déjà
-            if (!fs.existsSync(outputPath)) {
-                await pdf.convert(filePath, options); // Convertit la première page en image
-            }
-
-            // Assurez-vous que le fichier de prévisualisation existe avant de le traiter
-            if (fs.existsSync(outputPath)) {
-                const preview = await sharp(outputPath)
-                    .resize(200) // Taille réduite pour la prévisualisation
-                    .toBuffer();
-                res.set('Content-Type', 'image/jpeg');
-                res.send(preview);
-            } else {
-                res.status(500).json({ message: "Erreur lors de la génération de la prévisualisation du PDF." });
-            }
         } else {
             res.status(400).json({ message: "Prévisualisation non disponible pour ce type de fichier." });
         }
@@ -295,8 +265,6 @@ export async function getFilePreview(app: App, req: Request, res: Response): Pro
         res.status(500).json({ message: "Erreur lors de la génération de la prévisualisation." });
     }
 }
-
-
 
 export async function getFileLink(app: App, req: Request, res: Response): Promise<void> {
     const token = req.headers.authorization?.split(" ")[1];

@@ -54,7 +54,7 @@ export default function AddFileDialog({ open, handleClose, onChange }: AddFileDi
         console.log(formData.get('file'));
         console.log(formData.get('path'));
     
-        const response = await fetch('http://localhost:3000/api/file', {
+        const response = await fetch('http://localhost:8090/api/file', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,

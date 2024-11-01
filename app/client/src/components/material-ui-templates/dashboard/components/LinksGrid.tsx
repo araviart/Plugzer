@@ -132,7 +132,7 @@ export default function LinksGrid() {
           const { token } = JSON.parse(authInfos);
 
             try {
-                const response = await fetch('http://localhost:3000/api/links', {
+                const response = await fetch('http://localhost:8090/api/links', {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${token}` },
                 });

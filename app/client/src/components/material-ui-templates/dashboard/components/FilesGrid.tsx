@@ -46,7 +46,7 @@ export default function FilesGrid() {
 
       console.log(token)
       try {
-        const response = await fetch('http://localhost:3000/api/folder?path='+path, {
+        const response = await fetch('http://localhost:8090/api/folder?path='+path, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         });
