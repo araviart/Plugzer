@@ -103,7 +103,7 @@ export async function generateTemporarLink(fileId: string, userId: number, app: 
 
     // Crée un token unique
     const token = crypto.randomBytes(16).toString("hex");
-    const expiration = Date.now() + 15 * 60 * 1000; // Expire dans 15 minutes
+    const expiration = Date.now() + 24 * 60 * 60 * 1000; // Expire dans 24 heures
 
     // Stocke le lien temporaire dans la base de données ou en mémoire (par exemple, dans Redis)
     await app.repository.fileRepository.createLink(userId, {
