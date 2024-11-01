@@ -7,10 +7,9 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
-import Divider from '@mui/material/Divider';
 import { Link as RouterLink } from 'react-router-dom';
 import Link from '@mui/material/Link';
-import { SitemarkIcon, GoogleIcon, FacebookIcon } from './CustomIcons';
+import { SitemarkIcon } from './CustomIcons';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',

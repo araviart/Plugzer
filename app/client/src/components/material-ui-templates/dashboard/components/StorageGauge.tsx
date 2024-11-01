@@ -1,13 +1,10 @@
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { formatFileSize } from './ElementCard';
 import { useStorage } from '../context/StorageContext';
 
 export default function StorageGauge() {
-
-    const location = useLocation();
 
     const [maxStorage, setMaxStorage] = useState(100);
     const { storageUsageNeedsRefresh, setStorageUsageNeedsRefresh } = useStorage();
@@ -20,7 +17,7 @@ export default function StorageGauge() {
         if (authInfos) {
             const { token } = JSON.parse(authInfos);
             console.log(token)
-            const path = location.pathname == "/files" ? null : location.pathname.split('/files/').pop() ?? null;
+           
 
             try {
                 const response = await fetch('http://localhost:3000/api/user/storage', {
