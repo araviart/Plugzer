@@ -67,7 +67,7 @@ INSERT INTO max_storage (id, max_storage) VALUES (1, 2147483648);
 
 DELIMITER //
 
-CREATE FUNCTION get_total_storage_used(utilisateur_id INT) RETURNS BIGINT
+CREATE FUNCTION get_total_storage_used(p_utilisateur_id INT) RETURNS BIGINT
 DETERMINISTIC
 BEGIN
     DECLARE total_storage_used BIGINT;
@@ -75,9 +75,10 @@ BEGIN
     -- Calcule la somme de la taille des fichiers pour l'utilisateur donné
     SELECT IFNULL(SUM(taille_fichier), 0) INTO total_storage_used
     FROM storage
-    WHERE utilisateur_id = utilisateur_id;
+    WHERE utilisateur_id = p_utilisateur_id;
 
     RETURN total_storage_used;
 END //
+	
 
 DELIMITER ;
