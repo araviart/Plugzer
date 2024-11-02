@@ -291,7 +291,7 @@ export async function getFileLink(app: App, req: Request, res: Response): Promis
             }
             res.json({
                 file_id: file.file_id,
-                link: `/api/file/${fileId}?token=${file.link}`,
+                link: `${process.env.hostname}/api/file/${fileId}?token=${file.link}`,
                 expiration: file.expiration
             })
         }
