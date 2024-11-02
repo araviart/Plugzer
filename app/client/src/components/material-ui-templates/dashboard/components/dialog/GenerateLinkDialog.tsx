@@ -36,7 +36,7 @@ export default function GenerateLinkDialog({
         console.log(token)
 
         try {
-          const response = await fetch(`http://localhost:3000/api/file/link?id=${file.id}`, {
+          const response = await fetch(`/api/file/link?id=${file.id}`, {
             method: 'GET',
             headers: { Authorization: `Bearer ${token}` },
           });

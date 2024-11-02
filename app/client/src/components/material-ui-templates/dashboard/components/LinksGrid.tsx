@@ -37,7 +37,7 @@ function renderStatus(status: '0' | '1', expiration: string) {
 }
 
 function renderLink(link:string, fileId: string | number) {
-    return `http://localhost:3000/api/file/${fileId}?token=${link}`;
+    return `/api/file/${fileId}?token=${link}`;
 }
 
 //renderdate affiche date d'expiration + heure et minute
@@ -132,7 +132,7 @@ export default function LinksGrid() {
           const { token } = JSON.parse(authInfos);
 
             try {
-                const response = await fetch('http://localhost:8090/api/links', {
+                const response = await fetch('/api/links', {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${token}` },
                 });
@@ -184,7 +184,7 @@ export default function LinksGrid() {
 
                 console.log(`Making link ${linkId} unavailable...`);
                 try {
-                    const response = await fetch(`http://localhost:3000/api/link/${linkId}/status`, {
+                    const response = await fetch(`/api/link/${linkId}/status`, {
                         method: 'PUT',
                         headers: { Authorization: `Bearer ${token}` },
                     });
@@ -225,7 +225,7 @@ export default function LinksGrid() {
 
                     console.log(`Extending expiration date of link ${linkId}...`);
                     try {
-                        const response = await fetch(`http://localhost:3000/api/link/${linkId}/expiration`, {
+                        const response = await fetch(`/api/link/${linkId}/expiration`, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
