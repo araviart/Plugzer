@@ -84,14 +84,10 @@ export function CustomIcon() {
       sx={{
         width: '1.5rem',
         height: '1.5rem',
-        bgcolor: 'black',
-        borderRadius: '999px',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'center',
-        color: 'hsla(210, 100%, 95%, 0.9)',
-        border: '1px solid',
       }}
     >
       <svg width="69" height="69" viewBox="0 0 69 69" fill="none" xmlns="http://www.w3.org/2000/svg">
