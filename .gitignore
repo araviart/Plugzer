@@ -3,3 +3,6 @@
 
 /app/fileStorage
 /app/compressed
+
+/app/.env
+.env
