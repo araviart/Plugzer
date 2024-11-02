@@ -49,6 +49,8 @@ CREATE TABLE `lien_fichier` (
   `id` int NOT NULL AUTO_INCREMENT,
   `fichier_id` int NOT NULL,
   `lien` varchar(255) NOT NULL,
+  `visites` INT DEFAULT 0,
+  `isOnline` BOOLEAN DEFAULT TRUE,
   `date_expiration` TIMESTAMP NOT NULL DEFAULT ((curdate() + interval 1 day)),
   PRIMARY KEY (`id`),
   KEY `fichier_id` (`fichier_id`),
