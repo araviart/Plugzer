@@ -35,10 +35,10 @@ export default function SideMenuMobile({ open, toggleDrawer }: SideMenuMobilePro
           height: '100%',
         }}
       >
-        <Stack direction="row" sx={{ p: 2, pb: 0, gap: 1 }}>
+        <Stack direction="row" sx={{ p: 2, pb: 0, gap: 15 }}>
           <Stack
             direction="row"
-            sx={{ gap: 10, alignItems: 'center', flexGrow: 1, p: 1 }}
+            sx={{ gap: 1, alignItems: 'center', flexGrow: 1, p: 1 }}
           >
             <Avatar
               sizes="small"
