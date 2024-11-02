@@ -37,7 +37,7 @@ function renderStatus(status: '0' | '1', expiration: string) {
 }
 
 function renderLink(link:string, fileId: string | number) {
-    return `http://www.plugzer.sebastien-gratade.fr/api/file/${fileId}?token=${link}`;
+    return `https://www.plugzer.sebastien-gratade.fr/api/file/${fileId}?token=${link}`;
 }
 
 //renderdate affiche date d'expiration + heure et minute
