@@ -278,7 +278,11 @@ export async function getFileLink(app: App, req: Request, res: Response): Promis
         if (file === null || file.expiration < new Date()) {
             generateTemporarLink(fileId, userId, app).then((fileLink) => {
                 console.log("Generated file link:", fileLink);
-                res.json(fileLink);
+                res.json({
+                    file_id: fileLink.file_id,
+                    link: `${process.env.hostname}/api/file/${fileId}?token=${fileLink.link}`,
+                    expiration: fileLink.expiration
+                });
             })
                 .catch((error) => {
                     res.status(401).json({ message: error.message });
