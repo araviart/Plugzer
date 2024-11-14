@@ -268,7 +268,7 @@ export async function getFilePreview(app: App, req: Request, res: Response): Pro
 
 export async function getFileLink(app: App, req: Request, res: Response): Promise<void> {
     const token = req.headers.authorization?.split(" ")[1];
-    console.log("token", token);
+    console.log("getting file link");
 
     verifyTokenAndGetUser(token).then(async (userId) => {
         const fileId = req.query.id as string;
@@ -280,7 +280,7 @@ export async function getFileLink(app: App, req: Request, res: Response): Promis
                 console.log("Generated file link:", fileLink);
                 res.json({
                     file_id: fileLink.file_id,
-                    link: `${process.env.hostname}/api/file/${fileId}?token=${fileLink.link}`,
+                    link: `${process.env.hostname}${fileLink.link}`,
                     expiration: fileLink.expiration
                 });
             })
@@ -293,9 +293,10 @@ export async function getFileLink(app: App, req: Request, res: Response): Promis
                 // Supprimer le lien expiré
                 await app.repository.fileRepository.deleteLink(userId, fileId);
             }
+		console.log
             res.json({
                 file_id: file.file_id,
-                link: `${process.env.hostname}/api/file/${fileId}?token=${file.link}`,
+                link: `${process.env.hostname}${file.link}`,
                 expiration: file.expiration
             })
         }
