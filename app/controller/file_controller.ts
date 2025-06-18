@@ -139,7 +139,7 @@ export async function generateTemporarLink(fileId: string, userId: number, app: 
     // Retourne le lien temporaire
     return {
         file_id: parseInt(fileId),
-        link: `http://localhost:3000/api/file/${fileId}?token=${token}`,
+        link: `https://plugzer.sebastien-gratade.fr/api/file/${fileId}?token=${token}`,
         expiration: new Date(expiration)
     };
 }
@@ -291,7 +291,7 @@ export async function getFileLink(app: App, req: Request, res: Response): Promis
             }
             res.json({
                 file_id: file.file_id,
-                link: `http://localhost:3000/api/file/${fileId}?token=${file.link}`,
+                link: `https://plugzer.sebastien-gratade.fr/api/file/${fileId}?token=${file.link}`,
                 expiration: file.expiration
             })
         }

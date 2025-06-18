@@ -20,7 +20,7 @@ export default function StorageGauge() {
            
 
             try {
-                const response = await fetch('http://localhost:8090/api/user/storage', {
+                const response = await fetch('/api/user/storage', {
                     method: 'GET',
                     headers: { Authorization: `Bearer ${token}` },
                 });

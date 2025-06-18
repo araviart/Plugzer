@@ -36,7 +36,7 @@ export default function ElementCard(props: Props) {
                 const { token } = JSON.parse(authInfos);
 
                 try {
-                    const response = await fetch(`http://localhost:3000/api/file/${props.element.id}/preview`, {
+                    const response = await fetch(`/api/file/${props.element.id}/preview`, {
                         method: 'GET',
                         headers: { Authorization: `Bearer ${token}` },
                     });
@@ -75,7 +75,7 @@ export default function ElementCard(props: Props) {
                 const { token } = JSON.parse(authInfos);
 
                 try {
-                    const response = await fetch(`http://localhost:3000/api/file/${props.element.id}`, {
+                    const response = await fetch(`/api/file/${props.element.id}`, {
                         method: 'GET',
                         headers: { Authorization: `Bearer ${token}` },
                     });

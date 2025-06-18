@@ -37,7 +37,7 @@ export default function AddFolderDialog({ open, handleClose, onAddFolder }: AddF
       const path = location.pathname == "/files" ? null : location.pathname.split('/files/').pop()??null;
   
       try {
-        const response = await fetch('http://localhost:8090/api/folder', {
+        const response = await fetch('/api/folder', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({
