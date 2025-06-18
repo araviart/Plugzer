@@ -74,7 +74,7 @@ export default function CardDropdown(props: Props) {
 
       console.log(token)
       try {
-        const response = await fetch(`http://localhost:3000/api/${isFile(props.element) ? 'file' : 'folder'}/${props.element.id}`, {
+        const response = await fetch(`/api/${isFile(props.element) ? 'file' : 'folder'}/${props.element.id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export default function CardDropdown(props: Props) {
       const { token } = JSON.parse(authInfos);
 
       try {
-        const response = await fetch(`http://localhost:3000/api/folder/${props.element.id}`, {
+        const response = await fetch(`/api/folder/${props.element.id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -190,7 +190,7 @@ export default function CardDropdown(props: Props) {
       const { token } = JSON.parse(authInfos);
 
       try {
-        const response = await fetch(`http://localhost:3000/api/file/${props.element.id}`, {
+        const response = await fetch(`/api/file/${props.element.id}`, {
           method: 'GET',
           headers: { Authorization: `Bearer ${token}` },
         });
