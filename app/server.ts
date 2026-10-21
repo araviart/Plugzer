@@ -18,14 +18,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const server = express();
-const port = 3000;
+const port = process.env.PORT || 3065;
 
 const database = mysql.createPool({
     host: process.env.DB_HOST,
     port: 3306,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: "express"
+    database: process.env.DB_NAME
 });
 
 server.use(cors());
